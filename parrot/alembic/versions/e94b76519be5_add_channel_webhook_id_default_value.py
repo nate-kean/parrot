@@ -21,10 +21,10 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-	with op.batch_alter_table("channel") as batch_op:
-		batch_op.alter_column("webhook_id", server_default=sa.null())
+	with op.batch_alter_table("channel") as bop:
+		bop.alter_column("webhook_id", server_default=sa.null())
 
 
 def downgrade() -> None:
-	with op.batch_alter_table("channel") as batch_op:
-		batch_op.alter_column("webhook_id", server_default=None)
+	with op.batch_alter_table("channel") as bop:
+		bop.alter_column("webhook_id", server_default=None)

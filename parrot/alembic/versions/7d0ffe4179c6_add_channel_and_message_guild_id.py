@@ -13,6 +13,7 @@ Create Date: 2025-01-21 14:40:18.601522
 
 import logging
 from collections.abc import Sequence
+from typing import cast
 
 import discord
 import sqlalchemy as sa
@@ -36,11 +37,11 @@ def upgrade() -> None:
 	from parrot.alembic.models import r7d0ffe4179c6
 	from parrot.alembic.models.r7d0ffe4179c6 import ErrorCode
 
-	with op.batch_alter_table("channel") as batch_op:
+	with op.batch_alter_table("channel") as bop:
 		# https://stackoverflow.com/a/6710280
 		# sqlite oversight: You have to add the column with a default value then
 		# remove the default value after for it to work
-		batch_op.add_column(
+		bop.add_column(
 			sa.Column(
 				"guild_id",
 				sa.BigInteger(),
@@ -48,12 +49,12 @@ def upgrade() -> None:
 				server_default=str(ErrorCode.UNPROCESSED.value),
 			)
 		)
-	with op.batch_alter_table("channel") as batch_op:
-		batch_op.alter_column("guild_id", server_default=None)
-		batch_op.create_foreign_key(None, "guild", ["guild_id"], ["id"])
+	with op.batch_alter_table("channel") as bop:
+		bop.alter_column("guild_id", server_default=None)
+		bop.create_foreign_key(None, "guild", ["guild_id"], ["id"])
 
-	with op.batch_alter_table("message") as batch_op:
-		batch_op.add_column(
+	with op.batch_alter_table("message") as bop:
+		bop.add_column(
 			sa.Column(
 				"guild_id",
 				sa.BigInteger(),
@@ -65,7 +66,7 @@ def upgrade() -> None:
 		# Developing this migration has made me realize Parrot sorely needs
 		# channel ID too to be able to remotely efficiently get information from
 		# messages. With this plus guild ID, we won't have to do this again.
-		batch_op.add_column(
+		bop.add_column(
 			sa.Column(
 				"channel_id",
 				sa.BigInteger(),
@@ -74,8 +75,8 @@ def upgrade() -> None:
 				server_default=str(ErrorCode.UNPROCESSED.value),
 			)
 		)
-		batch_op.create_foreign_key(None, "guild", ["guild_id"], ["id"])
-		batch_op.create_index(
+		bop.create_foreign_key(None, "guild", ["guild_id"], ["id"])
+		bop.create_index(
 			op.f("ix_guild_id_author_id"), ["guild_id", "author_id"]
 		)
 
@@ -199,7 +200,9 @@ def upgrade() -> None:
 		have to look for it in every channel Parrot can learn in.
 		Still, these calls _may_ end up finding other relevant messages.
 		"""
-		db_messages_count = count(session, r7d0ffe4179c6.Message.id)
+		db_messages_count = count(
+			session, cast(sa.ColumnClause, r7d0ffe4179c6.Message.id)
+		)
 		# "Pick an unprocessed message. Which one, doesn't matter."
 		statement = (
 			sm.select(r7d0ffe4179c6.Message)
@@ -250,27 +253,27 @@ def upgrade() -> None:
 
 	# Remove the temporary default value settings from message.guild_id and
 	# channel_id now that they should have all been populated
-	with op.batch_alter_table("message") as batch_op:
-		batch_op.alter_column("guild_id", server_default=None)
-		batch_op.alter_column("channel_id", server_default=None)
+	with op.batch_alter_table("message") as bop:
+		bop.alter_column("guild_id", server_default=None)
+		bop.alter_column("channel_id", server_default=None)
 
 	cleanup_models(r7d0ffe4179c6)
 
 
 def downgrade() -> None:
 	try:
-		with op.batch_alter_table("channel") as batch_op:
-			batch_op.drop_constraint(
+		with op.batch_alter_table("channel") as bop:
+			bop.drop_constraint(
 				op.f("fk_channel_guild_id_guild"), type_="foreignkey"
 			)
-			batch_op.drop_index(op.f("ix_guild_id_author_id"))
+			bop.drop_index(op.f("ix_guild_id_author_id"))
 	except ValueError as exc:
 		logging.warning(exc)
-	with op.batch_alter_table("channel") as batch_op:
-		batch_op.drop_column("guild_id")
+	with op.batch_alter_table("channel") as bop:
+		bop.drop_column("guild_id")
 
-	with op.batch_alter_table("message") as batch_op:
-		batch_op.drop_constraint(
+	with op.batch_alter_table("message") as bop:
+		bop.drop_constraint(
 			op.f("fk_message_guild_id_guild"), type_="foreignkey"
 		)
-		batch_op.drop_column("guild_id")
+		bop.drop_column("guild_id")

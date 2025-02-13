@@ -20,56 +20,52 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-	with op.batch_alter_table("membership") as batch_op:
-		batch_op.drop_constraint(
-			op.f("fk_membership_member_id_member"), type_="foreignkey"
+	with op.batch_alter_table("membership") as bop:
+		bop.drop_constraint(
+			op.f("fk_membership_user_id_user"), type_="foreignkey"
 		)
-		batch_op.create_foreign_key(
-			None, "user", ["member_id"], ["id"], ondelete="CASCADE"
+		bop.create_foreign_key(
+			None, "user", ["user_id"], ["id"], ondelete="CASCADE"
 		)
 	try:
-		with op.batch_alter_table("message") as batch_op:
-			batch_op.drop_constraint(
+		with op.batch_alter_table("message") as bop:
+			bop.drop_constraint(
 				op.f("fk_messages_user_id_users"), type_="foreignkey"
 			)
 	except ValueError as exc:
 		logging.warning(exc)
-	with op.batch_alter_table("message") as batch_op:
-		batch_op.create_foreign_key(
+	with op.batch_alter_table("message") as bop:
+		bop.create_foreign_key(
 			None, "user", ["author_id"], ["id"], ondelete="CASCADE"
 		)
-	with op.batch_alter_table("antiavatar") as batch_op:
-		batch_op.drop_constraint(
-			op.f("fk_antiavatar_member_id_member"), type_="foreignkey"
+	with op.batch_alter_table("antiavatar") as bop:
+		bop.drop_constraint(
+			op.f("fk_antiavatar_user_id_user"), type_="foreignkey"
 		)
-		batch_op.create_foreign_key(
-			None, "user", ["member_id"], ["id"], ondelete="CASCADE"
+		bop.create_foreign_key(
+			None, "user", ["user_id"], ["id"], ondelete="CASCADE"
 		)
 
 
 def downgrade() -> None:
-	with op.batch_alter_table("membership") as batch_op:
-		batch_op.drop_constraint(
-			op.f("fk_membership_member_id_member"), type_="foreignkey"
+	with op.batch_alter_table("membership") as bop:
+		bop.drop_constraint(
+			op.f("fk_membership_user_id_user"), type_="foreignkey"
 		)
-		batch_op.create_foreign_key(
-			None, "user", ["member_id"], ["id"], ondelete=None
-		)
-	with op.batch_alter_table("message") as batch_op:
-		batch_op.drop_constraint(
+		bop.create_foreign_key(None, "user", ["user_id"], ["id"], ondelete=None)
+	with op.batch_alter_table("message") as bop:
+		bop.drop_constraint(
 			op.f("fk_message_author_id_member"), type_="foreignkey"
 		)
-		batch_op.create_foreign_key(
+		bop.create_foreign_key(
 			op.f("fk_messages_user_id_users"),
 			"user",
 			["author_id"],
 			["id"],
 			ondelete=None,
 		)
-	with op.batch_alter_table("antiavatar") as batch_op:
-		batch_op.drop_constraint(
-			op.f("fk_antiavatar_member_id_member"), type_="foreignkey"
+	with op.batch_alter_table("antiavatar") as bop:
+		bop.drop_constraint(
+			op.f("fk_membership_user_id_user"), type_="foreignkey"
 		)
-		batch_op.create_foreign_key(
-			None, "user", ["member_id"], ["id"], ondelete=None
-		)
+		bop.create_foreign_key(None, "user", ["user_id"], ["id"], ondelete=None)
