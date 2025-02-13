@@ -1,12 +1,8 @@
-import functools
 from types import ModuleType
 from typing import ClassVar, cast
 
 import sqlalchemy as sa
 import sqlmodel as sm
-from parrot.db import NAMING_CONVENTION
-
-from alembic import op
 
 
 # Type alias to denote a string that is (supposed to be) in ISO 8601 format
@@ -44,11 +40,3 @@ def cleanup_models(models_module: ModuleType) -> None:
 
 def count(session: sm.Session, column: sa.ColumnClause) -> int | None:
 	return session.execute(sa.func.count(column)).scalar()
-
-
-# SQLAlchemy headache #15:
-# Version of op.batch_alter_table that has naming_convention already loaded into
-# it (because it doesn't use it by default???)
-batch_alter_table = functools.partial(
-	op.batch_alter_table, naming_convention=NAMING_CONVENTION
-)
