@@ -1,7 +1,7 @@
 """add channel webhook id default value
 
 Revision ID: e94b76519be5
-Revises: 21069c329505
+Revises: 3757315eec4c
 Create Date: 2025-01-22 23:34:25.443986
 
 """
@@ -15,7 +15,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "e94b76519be5"
-down_revision: str | None = "21069c329505"
+down_revision: str | None = "3757315eec4c"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
