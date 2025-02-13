@@ -9,8 +9,7 @@ Create Date: 2025-01-22 23:34:25.443986
 from collections.abc import Sequence
 
 import sqlalchemy as sa
-
-from alembic import op
+from parrot.alembic.common import batch_alter_table
 
 
 # revision identifiers, used by Alembic.
@@ -21,10 +20,10 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-	with op.batch_alter_table("channel") as bop:
+	with batch_alter_table("channel") as bop:
 		bop.alter_column("webhook_id", server_default=sa.null())
 
 
 def downgrade() -> None:
-	with op.batch_alter_table("channel") as bop:
+	with batch_alter_table("channel") as bop:
 		bop.alter_column("webhook_id", server_default=None)

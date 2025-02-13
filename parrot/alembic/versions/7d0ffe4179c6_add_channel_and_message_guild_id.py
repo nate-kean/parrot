@@ -19,7 +19,7 @@ import discord
 import sqlalchemy as sa
 import sqlmodel as sm
 from parrot import config
-from parrot.alembic.common import cleanup_models, count
+from parrot.alembic.common import batch_alter_table, cleanup_models, count
 from parrot.utils import cast_not_none
 from tqdm import tqdm
 
@@ -37,7 +37,7 @@ def upgrade() -> None:
 	from parrot.alembic.models import r7d0ffe4179c6
 	from parrot.alembic.models.r7d0ffe4179c6 import ErrorCode
 
-	with op.batch_alter_table("channel") as bop:
+	with batch_alter_table("channel") as bop:
 		# https://stackoverflow.com/a/6710280
 		# sqlite oversight: You have to add the column with a default value then
 		# remove the default value after for it to work
@@ -49,11 +49,11 @@ def upgrade() -> None:
 				server_default=str(ErrorCode.UNPROCESSED.value),
 			)
 		)
-	with op.batch_alter_table("channel") as bop:
+	with batch_alter_table("channel") as bop:
 		bop.alter_column("guild_id", server_default=None)
 		bop.create_foreign_key(None, "guild", ["guild_id"], ["id"])
 
-	with op.batch_alter_table("message") as bop:
+	with batch_alter_table("message") as bop:
 		bop.add_column(
 			sa.Column(
 				"guild_id",
@@ -255,7 +255,7 @@ def upgrade() -> None:
 
 	# Remove the temporary default value settings from message.guild_id and
 	# channel_id now that they should have all been populated
-	with op.batch_alter_table("message") as bop:
+	with batch_alter_table("message") as bop:
 		bop.alter_column("guild_id", server_default=None)
 		bop.alter_column("channel_id", server_default=None)
 
@@ -264,17 +264,17 @@ def upgrade() -> None:
 
 def downgrade() -> None:
 	try:
-		with op.batch_alter_table("channel") as bop:
+		with batch_alter_table("channel") as bop:
 			bop.drop_constraint(
 				op.f("fk_channel_guild_id_guild"), type_="foreignkey"
 			)
 			bop.drop_index(op.f("ix_guild_id_author_id"))
 	except ValueError as exc:
 		logging.warning(exc)
-	with op.batch_alter_table("channel") as bop:
+	with batch_alter_table("channel") as bop:
 		bop.drop_column("guild_id")
 
-	with op.batch_alter_table("message") as bop:
+	with batch_alter_table("message") as bop:
 		bop.drop_constraint(
 			op.f("fk_message_guild_id_guild"), type_="foreignkey"
 		)
