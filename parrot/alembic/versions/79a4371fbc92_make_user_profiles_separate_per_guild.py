@@ -51,10 +51,11 @@ def upgrade() -> None:
 	intents.members = True
 	client = discord.Client(intents=intents)
 
+	db_users = session.exec(sm.select(r79a4371fbc92.User)).all()
+
 	@client.event
 	async def on_ready() -> None:
 		logging.info("Scraping Discord to populate guild IDs...")
-		db_users = session.exec(sm.select(r79a4371fbc92.User)).all()
 		members_found: set[Snowflake] = set()
 		for guild in tqdm(client.guilds, desc="Guilds processed"):
 			async for member in guild.fetch_members(limit=None):
@@ -81,7 +82,8 @@ def upgrade() -> None:
 		session.commit()
 		await client.close()
 
-	client.run(config.discord_bot_token)
+	if len(db_users) != 0:
+		client.run(config.discord_bot_token)
 	cleanup_models(r79a4371fbc92)
 
 

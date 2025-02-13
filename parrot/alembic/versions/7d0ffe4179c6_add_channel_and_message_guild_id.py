@@ -86,13 +86,14 @@ def upgrade() -> None:
 
 	client = discord.Client(intents=discord.Intents.default())
 
+	db_channels = session.exec(
+		sm.select(r7d0ffe4179c6.Channel).where(
+			# TODO: works without the == True?
+			r7d0ffe4179c6.Channel.can_learn_here == True  # noqa: E712
+		)
+	).all()
+
 	async def process_channels() -> list[discord.TextChannel]:
-		db_channels = session.exec(
-			sm.select(r7d0ffe4179c6.Channel).where(
-				# TODO: works without the == True?
-				r7d0ffe4179c6.Channel.can_learn_here == True  # noqa: E712
-			)
-		).all()
 		channels: list[discord.TextChannel] = []
 		for db_channel in tqdm(db_channels, desc="Channels processed"):
 			try:
@@ -249,7 +250,8 @@ def upgrade() -> None:
 		session.commit()
 		await client.close()
 
-	client.run(config.discord_bot_token)
+	if len(db_channels) != 0:
+		client.run(config.discord_bot_token)
 
 	# Remove the temporary default value settings from message.guild_id and
 	# channel_id now that they should have all been populated
