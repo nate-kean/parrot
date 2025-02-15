@@ -33,7 +33,7 @@ def upgrade() -> None:
 			"membership",
 			["guild_id", "user_id"],
 			["guild_id", "user_id"],
-			ondelete="cascade",
+			ondelete="CASCADE",
 		)
 
 	# "channel.guild_id": add on delete cascade
@@ -42,19 +42,19 @@ def upgrade() -> None:
 			op.f("fk_channel_guild_id_guild"), type_="foreignkey"
 		)
 		bop.create_foreign_key(
-			None, "guild", ["guild_id"], ["id"], ondelete="cascade"
+			None, "guild", ["guild_id"], ["id"], ondelete="CASCADE"
 		)
 
 	# "membership": add foreign key constraint "guild_id", on delete cascade
 	with op.batch_alter_table("membership") as bop:
 		bop.create_foreign_key(
-			None, "guild", ["guild_id"], ["id"], ondelete="cascade"
+			None, "guild", ["guild_id"], ["id"], ondelete="CASCADE"
 		)
 
 	with op.batch_alter_table("message") as bop:
 		# "message.channel_id": add foreign key constraint, on delete cascade
 		bop.create_foreign_key(
-			None, "channel", ["channel_id"], ["id"], ondelete="cascade"
+			None, "channel", ["channel_id"], ["id"], ondelete="CASCADE"
 		)
 		# replace foreign key constraint relative to "user" with one relative to
 		# "membership", preserve on delete cascade
@@ -66,7 +66,7 @@ def upgrade() -> None:
 			"membership",
 			["guild_id", "author_id"],
 			["guild_id", "user_id"],
-			ondelete="cascade",
+			ondelete="CASCADE",
 		)
 
 
@@ -85,7 +85,7 @@ def downgrade() -> None:
 			"user",
 			["author_id"],
 			["id"],
-			ondelete="cascade",
+			ondelete="CASCADE",
 		)
 
 	# "membership": remove foreign key constraint "guild_id"
@@ -118,7 +118,7 @@ def downgrade() -> None:
 			"user",
 			["user_id"],
 			["id"],
-			ondelete="cascade",
+			ondelete="CASCADE",
 		)
 		bop.create_foreign_key(
 			None,
