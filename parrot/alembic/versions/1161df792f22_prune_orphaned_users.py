@@ -1,6 +1,6 @@
 """prune orphaned users
 
-Deletes users found not to belong to any guild in 79a4371fbc92.
+Delete users that migration 79a4371fbc92 found not to belong to any guild.
 
 WARNING!!! This migration is irreversible. You should have a backup of your
 database before running migrations anyway but just saying
