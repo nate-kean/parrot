@@ -1,3 +1,4 @@
+import functools
 import logging.config
 import sys
 
@@ -5,7 +6,7 @@ from parrot import config as parrot_cfg
 from parrot.db import NAMING_CONVENTION
 from sqlalchemy import MetaData, engine_from_config, pool
 
-from alembic import context
+from alembic import context, op
 
 
 # this is the Alembic Config object, which provides
@@ -26,6 +27,13 @@ if "--autogenerate" in sys.argv:
 	target_metadata.naming_convention = NAMING_CONVENTION
 else:
 	target_metadata = MetaData(naming_convention=NAMING_CONVENTION)
+
+# SQLAlchemy headache #15:
+# Curry naming_convention into batch_alter_table because it doesn't use it by
+# default
+op.batch_alter_table = functools.partial(
+	op.batch_alter_table, naming_convention=NAMING_CONVENTION
+)
 
 
 def run_migrations_offline() -> None:
