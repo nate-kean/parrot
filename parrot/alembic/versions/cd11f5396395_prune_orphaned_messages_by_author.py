@@ -1,5 +1,7 @@
 """prune orphaned messages by author
 
+Prune messages with an unknown author.
+
 WARNING!!! This migration is irreversible. You should have a backup of your
 database before running migrations anyway but just saying
 
@@ -13,8 +15,7 @@ import logging
 from collections.abc import Sequence
 
 import sqlmodel as sm
-from parrot.alembic.common import count
-from parrot.alembic.models import v1
+from parrot.alembic.common import cleanup_models, count
 
 from alembic import op
 
@@ -27,6 +28,8 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
+	from parrot.alembic.models import v1
+
 	session = sm.Session(op.get_bind())
 	logging.info(f"Initial message count: {count(session, v1.Messages.id)}")
 	session.execute(
@@ -42,6 +45,7 @@ def upgrade() -> None:
 	)
 	logging.info(f"New message count: {count(session, v1.Messages.id)}")
 	session.commit()
+	cleanup_models(v1)
 
 
 def downgrade() -> None:
