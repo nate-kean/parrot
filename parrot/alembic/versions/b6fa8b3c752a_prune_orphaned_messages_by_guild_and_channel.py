@@ -1,4 +1,7 @@
-"""prune orphaned messages by channel
+"""prune orphaned messages by guild and channel
+
+Prune messages that the migration 7d0ffe4179c6 wasn't able to determine a
+guild or channel for.
 
 WARNING!!! This migration is irreversible. You should have a backup of your
 database before running migrations anyway but just saying
@@ -34,8 +37,14 @@ def upgrade() -> None:
 		f"Initial message count: {count(session, r7d0ffe4179c6.Message.id)}"
 	)
 	session.execute(
-		sm.text("DELETE FROM message WHERE guild_id = :guild_id"),
-		{"guild_id": ErrorCode.NOT_FOUND.value},
+		sm.text(
+			"DELETE FROM message "
+			"WHERE guild_id = :guild_id OR channel_id = :channel_id"
+		),
+		{
+			"guild_id": ErrorCode.NOT_FOUND.value,
+			"channel_id": ErrorCode.NOT_FOUND.value,
+		},
 	)
 	logging.info(
 		f"New message count: {count(session, r7d0ffe4179c6.Message.id)}"
