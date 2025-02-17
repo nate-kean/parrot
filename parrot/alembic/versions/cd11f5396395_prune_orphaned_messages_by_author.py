@@ -35,11 +35,11 @@ def upgrade() -> None:
 	session.execute(
 		sm.text("""
 			DELETE FROM messages
-			WHERE id IN (
+			WHERE messages.id IN (
 				SELECT rowid
-				FROM pragma_foreign_key_check()
-				WHERE "table" = "messages"
-					AND "parent" = "users"
+				FROM pragma_foreign_key_check() as fkc
+				WHERE fkc."table" = "messages"
+					AND fkc."parent" = "users"
 			)
 		""")
 	)

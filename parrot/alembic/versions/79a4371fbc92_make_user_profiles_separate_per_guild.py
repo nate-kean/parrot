@@ -40,7 +40,7 @@ def upgrade() -> None:
 	from parrot.alembic.models import r79a4371fbc92
 
 	conn = op.get_bind()
-	r79a4371fbc92.Membership.__table__.create(conn)
+	r79a4371fbc92.Membership.__table__.create(conn, checkfirst=True)
 	op.drop_column("user", "is_registered")
 
 	global target_metadata

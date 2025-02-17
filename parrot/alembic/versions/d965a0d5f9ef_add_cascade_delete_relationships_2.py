@@ -29,7 +29,8 @@ def upgrade() -> None:
 			op.f("fk_antiavatar_user_id_user"), type_="foreignkey"
 		)
 		bop.create_foreign_key(
-			None,
+			# Composite foreign keys don't get named right
+			op.f("fk_antiavatar_guild_id_user_id_membership"),
 			"membership",
 			["guild_id", "user_id"],
 			["guild_id", "user_id"],
@@ -62,7 +63,7 @@ def upgrade() -> None:
 			op.f("fk_message_author_id_user"), type_="foreignkey"
 		)
 		bop.create_foreign_key(
-			None,
+			op.f("fk_message_guild_id_author_id_membership"),
 			"membership",
 			["guild_id", "author_id"],
 			["guild_id", "user_id"],
