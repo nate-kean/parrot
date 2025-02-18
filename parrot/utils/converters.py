@@ -11,7 +11,6 @@ from parrot.bot import Parrot
 from parrot.utils import regex
 from parrot.utils.exceptions import (
 	ChannelTypeError,
-	FeatureDisabledError,
 	UserNotFoundError,
 )
 
@@ -121,11 +120,6 @@ class Memberlike(Userlike):
 		"""Choose a random registered user in this channel."""
 		if text not in ("someone", "somebody", "anyone", "anybody"):
 			return
-		if not config.enable_imitate_someone:
-			raise FeatureDisabledError(
-				f'The "{config.command_prefix}imitate someone" feature is '
-				"disabled."
-			)
 		if ctx.guild is None:
 			raise ChannelTypeError(
 				f'"{config.command_prefix}imitate someone" is only available '
