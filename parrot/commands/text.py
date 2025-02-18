@@ -90,7 +90,7 @@ class Text(commands.Cog):
 			# Send the funny XOK message instead, that'll show 'em.
 			embed = ParrotEmbed(
 				title="Error",
-				color_name=ParrotEmbed.Color.RED,
+				color=ParrotEmbed.Color.RED,
 			)
 			embed.set_thumbnail(
 				url="https://i.imgur.com/zREuVTW.png"

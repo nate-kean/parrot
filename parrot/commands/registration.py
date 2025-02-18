@@ -36,7 +36,7 @@ class Registration(commands.Cog):
 
 		embed = ParrotEmbed(
 			title="✅ Registered!",
-			color_name=ParrotEmbed.Color.GREEN,
+			color=ParrotEmbed.Color.GREEN,
 			description=(
 				"Now Parrot can start learning your speech patterns and "
 				"imitate you."
@@ -79,7 +79,7 @@ class Registration(commands.Cog):
 
 		embed = ParrotEmbed(
 			title="Unregistered!",
-			color_name=ParrotEmbed.Color.GRAY,
+			color=ParrotEmbed.Color.GRAY,
 			description=(
 				"Parrot will no longer be able to imitate you and it "
 				"has stopped collecting your messages.\n\n_If you're done with "

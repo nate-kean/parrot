@@ -77,7 +77,7 @@ class Data[**P](commands.Cog):
 		# Tell them to check their DMs.
 		embed_download_ready = ParrotEmbed(
 			title="Download ready",
-			color_name=ParrotEmbed.Color.GREEN,
+			color=ParrotEmbed.Color.GREEN,
 			description="A link to download your data has been DM'd to you.",
 		)
 		await ctx.send(embed=embed_download_ready)
@@ -134,7 +134,7 @@ class Data[**P](commands.Cog):
 
 		embed = ParrotEmbed(
 			title="Are you sure?",
-			color_name=ParrotEmbed.Color.ORANGE,
+			color=ParrotEmbed.Color.ORANGE,
 			description=confirmation_message_fmt.format(
 				who=tag(who_), confirm_code=confirm_code
 			),
@@ -178,7 +178,7 @@ class Data[**P](commands.Cog):
 			await ctx.send(
 				embed=ParrotEmbed(
 					title=f"Parrot has forgotten {tag(user)}.",
-					color_name=ParrotEmbed.Color.GRAY,
+					color=ParrotEmbed.Color.GRAY,
 					description=(
 						"All of the data that Parrot has collected from this "
 						"user has been deleted."

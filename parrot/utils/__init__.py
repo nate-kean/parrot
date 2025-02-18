@@ -81,10 +81,14 @@ class ParrotEmbed(discord.Embed):
 		GRAY = 0x9E9E9E  # Dead gray
 
 	def __init__(
-		self, color_name: Color = Color.DEFAULT, *args: ..., **kwargs: ...
+		self,
+		color: Color | int | discord.Color = Color.DEFAULT,
+		*args: ...,
+		**kwargs: ...,
 	):
-		kwargs["color"] = kwargs.get("color", color_name.value)
-		super().__init__(*args, **kwargs)
+		if isinstance(color, ParrotEmbed.Color):
+			color = color.value
+		super().__init__(*args, color=color, **kwargs)
 
 
 def cast_not_none[T](arg: T | None) -> T:
