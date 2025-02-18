@@ -48,10 +48,10 @@ class Channel(SQLModel, table=True):
 	#   to exactly ONE Channel.
 	# Cascade delete conditions:
 	# - If a Channel's associated Guild is deleted.
-	guild: "Guild" = Relationship(
-		back_populates="channels", cascade_delete=True
+	guild: "Guild" = Relationship(back_populates="channels")
+	messages: list["Message"] = Relationship(
+		back_populates="channel", cascade_delete=True
 	)
-	messages: list["Message"] = Relationship(back_populates="channel")
 
 
 class Message(SQLModel, table=True):
@@ -60,10 +60,16 @@ class Message(SQLModel, table=True):
 	author_id: Snowflake = Field(foreign_key="user.id")
 	channel_id: Snowflake = Field(foreign_key="channel.id")
 	guild_id: Snowflake = Field(foreign_key="guild.id")
-	# Messages are going to be SELECTed almost exclusively by these columns, so
-	# declare an index for them
 	__table_args__ = (
+		# Messages are going to be SELECTed almost exclusively by these columns,
+		# so declare an index for them
 		sa.Index("ix_guild_id_author_id", "guild_id", "author_id"),
+		# SQLAlchemy isn't smart enough to figure out composite foreign keys on
+		# its own
+		sa.ForeignKeyConstraint(
+			["guild_id", "author_id"],
+			["membership.guild_id", "membership.user_id"],
+		),
 	)
 
 	# Explicit delete conditions:
@@ -76,22 +82,19 @@ class Message(SQLModel, table=True):
 	# Cascade delete conditions:
 	# - If a Message's associated Channel is deleted.
 	# - If a Message's associated Membership is deleted.
-	channel: Channel = Relationship(
-		back_populates="messages", cascade_delete=True
-	)
-	membership: "Membership" = Relationship(
-		back_populates="messages", cascade_delete=True
-	)
+	channel: Channel = Relationship(back_populates="messages")
+	membership: "Membership" = Relationship(back_populates="messages")
 
 
 class Membership(SQLModel, table=True):
 	"""User-Guild relationship"""
 
-	# TODO: Why did I define these as optional?
-	user_id: Snowflake | None = Field(
+	# Optional so Membership objects can be constructed through the user and
+	# guild attributes
+	user_id: Snowflake = Field(
 		default=None, foreign_key="user.id", primary_key=True
 	)
-	guild_id: Snowflake | None = Field(
+	guild_id: Snowflake = Field(
 		default=None, foreign_key="guild.id", primary_key=True
 	)
 	is_registered: bool = False
@@ -112,14 +115,16 @@ class Membership(SQLModel, table=True):
 	# Cascade delete conditions:
 	# - If a Membership's associated User is deleted.
 	# - If a Membership's associated Guild is deleted.
-	user: "User" = Relationship(
+	user: "User" = Relationship(back_populates="memberships")
+	guild: "Guild" = Relationship(back_populates="memberships")
+	# TODO: this does work, right? Even without a bespoke foreign key column for
+	# it?
+	antiavatar: "Antiavatar" = Relationship(
 		back_populates="membership", cascade_delete=True
 	)
-	guild: "Guild" = Relationship(
+	messages: list[Message] = Relationship(
 		back_populates="membership", cascade_delete=True
 	)
-	antiavatar: "Antiavatar" = Relationship(back_populates="membership")
-	messages: list[Message] = Relationship(back_populates="membership")
 
 
 class User(SQLModel, table=True):
@@ -135,7 +140,9 @@ class User(SQLModel, table=True):
 	# Cascade delete conditions:
 	# - None (a User will never be directly deleted as a result of a row in
 	#   another table being deleted).
-	memberships: list[Membership] = Relationship(back_populates="user")
+	memberships: list[Membership] = Relationship(
+		back_populates="user", cascade_delete=True
+	)
 
 
 class Guild(SQLModel, table=True):
@@ -157,8 +164,12 @@ class Guild(SQLModel, table=True):
 	# Cascade delete conditions:
 	# - None (a Guild will never be deleted as a result of a row in another
 	#   table being deleted).
-	memberships: list[Membership] = Relationship(back_populates="guild")
-	channels: list[Channel] = Relationship(back_populates="guild")
+	memberships: list[Membership] = Relationship(
+		back_populates="guild", cascade_delete=True
+	)
+	channels: list[Channel] = Relationship(
+		back_populates="guild", cascade_delete=True
+	)
 
 
 class AntiavatarBase(SQLModel):
@@ -172,8 +183,15 @@ class AntiavatarBase(SQLModel):
 class Antiavatar(AntiavatarBase, table=True):
 	"""Avatar info linked to a Membership"""
 
-	user_id: Snowflake = Field(foreign_key="user.id", primary_key=True)
 	guild_id: Snowflake = Field(foreign_key="guild.id", primary_key=True)
+	user_id: Snowflake = Field(foreign_key="user.id", primary_key=True)
+
+	__table_args__ = (
+		sa.ForeignKeyConstraint(
+			["guild_id", "user_id"],
+			["membership.guild_id", "membership.user_id"],
+		),
+	)
 
 	# Explicit delete conditions:
 	# - None (an Antiavatar is never (directly) deleted after it is created).
@@ -182,9 +200,7 @@ class Antiavatar(AntiavatarBase, table=True):
 	#   given Membership may have ONE Antiavatar OR NONE.
 	# Cascade delete conditions:
 	# - If an Antiavatar's associated Membership is deleted.
-	membership: Membership = Relationship(
-		back_populates="antiavatar", cascade_delete=True
-	)
+	membership: Membership = Relationship(back_populates="antiavatar")
 
 
 class AntiavatarCreate(AntiavatarBase):
