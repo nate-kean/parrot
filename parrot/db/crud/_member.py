@@ -34,7 +34,7 @@ class CRUDMember(SubCRUD):
 		self.bot.db_session.add(membership)
 
 	def assert_registered(self, member: discord.Member) -> None:
-		if self.is_registered(member):
+		if not self.is_registered(member):
 			raise NotRegisteredError.User(member)
 
 	def is_registered(self, member: discord.Member) -> bool:
