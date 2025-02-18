@@ -65,15 +65,16 @@ class CRUDMember(SubCRUD):
 	def set_antiavatar(
 		self, member: discord.Member, avatar_info_in: p.AntiavatarCreate
 	) -> None:
-		self.bot.db_session.add(
-			p.Antiavatar(
-				user_id=member.id,
-				guild_id=member.guild.id,
-				url=avatar_info_in.url,
-				message_id=avatar_info_in.message_id,
-				original_url=avatar_info_in.original_url,
-			)
+		antiavatar = p.Antiavatar(
+			user_id=member.id,
+			guild_id=member.guild.id,
+			url=avatar_info_in.url,
+			message_id=avatar_info_in.message_id,
+			original_url=avatar_info_in.original_url,
 		)
+		self.bot.db_session.add(antiavatar)
+		self.bot.db_session.commit()
+		self.bot.db_session.refresh(antiavatar)
 
 	def mark_gone(self, member: discord.Member) -> bool:
 		membership = self._get(member)
