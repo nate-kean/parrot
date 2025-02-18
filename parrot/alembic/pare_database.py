@@ -8,6 +8,7 @@ import logging
 import sqlmodel as sm
 from parrot import config
 from parrot.alembic import prepare_for_migration
+from parrot.alembic.common import count
 from parrot.alembic.models import v1
 
 
@@ -24,13 +25,7 @@ def main() -> None:
 	session = sm.Session(engine)
 
 	logging.info("Paring message table")
-	db_messages_count: int = session.execute(
-		sm.func.count(v1.Messages.id)  # type: ignore -- it works
-	).scalar()
-	logging.info(f"Initial message count: {db_messages_count}")
-	logging.info(
-		f"Estimated new count after paring: {db_messages_count // PARING_FACTOR}"
-	)
+	logging.info(f"Initial message count: {count(session, v1.Messages.id)}")
 	session.execute(
 		sm.text("""
 			DELETE FROM messages WHERE id IN (
@@ -45,10 +40,7 @@ def main() -> None:
 		{"factor": PARING_FACTOR},
 	)
 
-	db_messages_count: int = session.execute(
-		sm.func.count(v1.Messages.id)  # type: ignore
-	).scalar()
-	logging.info(f"New message count: {db_messages_count}")
+	logging.info(f"New message count: {count(session, v1.Messages.id)}")
 
 
 if __name__ == "__main__":

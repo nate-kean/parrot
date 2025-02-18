@@ -1,6 +1,6 @@
 import logging
 from types import ModuleType
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 import sqlalchemy as sa
 import sqlmodel as sm
@@ -46,8 +46,14 @@ def cleanup_models(models_module: ModuleType) -> None:
 		sm.SQLModel.metadata.remove(table)
 
 
-def count(session: sm.Session, column: sa.ColumnClause) -> int | None:
-	return session.execute(sa.func.count(column)).scalar()
+def count(
+	session: sm.Session,
+	# noqa: ANN401 -- no choice; can only be enforced at runtime in sm.col
+	# because SQLModel decided to lie to the type checker and say its model
+	# properties are primitives
+	column: Any,  # noqa: ANN401
+) -> int:
+	return session.exec(sm.select(sa.func.count(sm.col(column)))).one()
 
 
 class AddChannelAndMessageGuildIDFactory:
@@ -169,8 +175,8 @@ class AddChannelAndMessageGuildIDFactory:
 		have to look for it in every channel Parrot can learn in.
 		Still, these calls _may_ end up finding other relevant messages.
 		"""
-		unprocessed_count: int = self.session.exec(
-			sm.select(sa.func.count(self.m.Message.id)).where(
+		unprocessed_count = self.session.exec(
+			sm.select(sa.func.count(sm.col(self.m.Message.id))).where(
 				self.m.Message.guild_id == self.target_value
 			)
 		).one()
