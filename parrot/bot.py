@@ -10,9 +10,9 @@ from discord.ext import commands, tasks
 
 from parrot import config
 from parrot.db.crud import CRUD
-from parrot.db.manager.antiavatar import AntiavatarManager
-from parrot.db.manager.markov_model import MarkovModelManager
-from parrot.db.manager.webhook import WebhookManager
+from parrot.db.managers.antiavatar import AntiavatarManager
+from parrot.db.managers.markov_model import MarkovModelManager
+from parrot.db.managers.webhook import WebhookManager
 
 
 class Parrot(commands.AutoShardedBot):

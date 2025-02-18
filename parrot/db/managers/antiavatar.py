@@ -26,39 +26,44 @@ class AntiavatarManager:
 	guild. This way guild-specific avatars can be honored.
 	"""
 
-	avatar_channel: discord.TextChannel
+	_constructor_token = object()
 
-	def __init__(self, bot: "Parrot"):
-		"""dont run this directly please use .new() instead"""
+	def __init__(
+		self,
+		constructor_token: object,
+		bot: "Parrot",
+		avatar_channel: discord.TextChannel,
+	):
+		if constructor_token is not AntiavatarManager._constructor_token:
+			raise Exception(
+				"Constructor requires async operations. Please use .new()"
+			)
 		self.bot = bot
+		self.avatar_channel = avatar_channel
 
 	@classmethod
 	async def new(cls, bot: "Parrot") -> Self:
-		self = cls(bot)
-		avatar_channel = await self.bot.fetch_channel(
-			config.avatar_store_channel_id
-		)
+		avatar_channel = await bot.fetch_channel(config.avatar_store_channel_id)
 		if not isinstance(avatar_channel, discord.TextChannel):
 			raise TypeError(
 				"Invalid channel type for the avatar store: "
-				f"{self.avatar_channel}. The provided channel for storing "
+				f"{avatar_channel}. The provided channel for storing "
 				"avatars must be a regular TextChannel."
 			)
-		self.avatar_channel = avatar_channel
-		return self
+		return cls(AntiavatarManager._constructor_token, bot, avatar_channel)
 
 	async def fetch(self, member: discord.Member) -> str:
 		info = self.bot.crud.member.get_antiavatar(member)
 
 		has_preexisting_antiavatar = info is not None
 		if has_preexisting_antiavatar:
-			# Parrot has made an antiavatar for this member before
+			# Parrot has made an antiavatar for this member before.
 			# member.display_avatar: "For regular members this is just their
 			# avatar, but if they have a guild specific avatar then that is
 			# returned instead."
 			has_changed_avatar = AntiavatarManager._url_id(
 				member.display_avatar.url
-			) == AntiavatarManager._url_id(info.original_url)
+			) != AntiavatarManager._url_id(info.original_url)
 			if not has_changed_avatar:
 				# Use the cached antiavatar.
 				return info.url
