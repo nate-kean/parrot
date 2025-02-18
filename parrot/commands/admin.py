@@ -13,7 +13,7 @@ from parrot.utils import (
 	tag,
 	trace,
 )
-from parrot.utils.types import Permission
+from parrot.utils.types import LearnableChannel
 
 
 class Admin(commands.Cog):
@@ -51,7 +51,7 @@ class Admin(commands.Cog):
 		ctx: commands.Context,
 		action: str | None = None,
 		channel_type: str | None = None,
-		channel: discord.TextChannel | None = None,
+		channel: LearnableChannel | None = None,
 	) -> None:
 		"""Manage Parrot's channel permissions for this server."""
 		if action is None:

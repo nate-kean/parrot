@@ -3,6 +3,7 @@ from typing import cast
 import discord
 from discord.ext import commands, tasks
 from parrot.bot import Parrot
+from parrot.utils import is_learnable
 
 
 class Autoforget(commands.Cog):
@@ -59,7 +60,7 @@ class Autoforget(commands.Cog):
 		self, channel: discord.abc.GuildChannel
 	) -> None:
 		"""If a channel is deleted, forget any messages associated with it."""
-		if not isinstance(channel, discord.TextChannel):
+		if not is_learnable(channel):
 			return
 		self.bot.crud.channel.delete(channel)
 

@@ -22,6 +22,8 @@ from parrot.alembic.common import (
 	AddChannelAndMessageGuildIDFactory,
 	cleanup_models,
 )
+from parrot.utils import is_learnable
+from parrot.utils.types import LearnableChannel
 from tqdm import tqdm
 
 from alembic import op
@@ -94,8 +96,8 @@ def upgrade() -> None:
 		)
 	).all()
 
-	async def process_channels() -> list[discord.TextChannel]:
-		channels: list[discord.TextChannel] = []
+	async def process_channels() -> list[LearnableChannel]:
+		channels: list[LearnableChannel] = []
 		for db_channel in tqdm(db_channels, desc="Channels processed"):
 			try:
 				channel = await client.fetch_channel(db_channel.id)
@@ -106,7 +108,7 @@ def upgrade() -> None:
 				db_channel.guild_id = ErrorCode.REQUEST_FAILED.value
 				session.add(db_channel)
 				continue
-			if not isinstance(channel, discord.TextChannel):
+			if not is_learnable(channel):
 				logging.warning(
 					f"Invalid channel type: {db_channel.id} is {type(channel)}"
 				)

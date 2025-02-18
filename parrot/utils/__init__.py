@@ -5,14 +5,14 @@ import traceback
 from collections import OrderedDict
 from collections.abc import AsyncIterator, Callable, Coroutine
 from enum import Enum
-from typing import Any, cast
+from typing import Any, TypeGuard, cast
 
 import discord
 from discord.ext import commands
 
 from parrot import config
 from parrot.utils import regex
-from parrot.utils.types import AnyUser
+from parrot.utils.types import AnyUser, LearnableChannel, SpeakableChannel
 
 
 class HistoryCrawler:
@@ -95,6 +95,19 @@ def cast_not_none[T](arg: T | None) -> T:
 	return cast(T, arg)
 
 
+def discord_caps(text: str) -> str:
+	"""
+	Capitalize a string in a way that remains friendly to URLs, emojis, and
+	mentions.
+	Credit to https://github.com/redgoldlace
+	"""
+	words = text.replace("*", "").split(" ")
+	for i, word in enumerate(words):
+		if regex.do_not_capitalize.match(word) is None:
+			words[i] = word.upper()
+	return " ".join(words)
+
+
 def error2traceback(error: Exception) -> str:
 	return "\n".join(
 		traceback.format_exception(None, error, error.__traceback__)
@@ -113,19 +126,6 @@ def executor_function[**P, Ret](
 	return decorated
 
 
-def discord_caps(text: str) -> str:
-	"""
-	Capitalize a string in a way that remains friendly to URLs, emojis, and
-	mentions.
-	Credit to https://github.com/redgoldlace
-	"""
-	words = text.replace("*", "").split(" ")
-	for i, word in enumerate(words):
-		if regex.do_not_capitalize.match(word) is None:
-			words[i] = word.upper()
-	return " ".join(words)
-
-
 def find_text(message: discord.Message) -> str:
 	"""
 	Search for text within a message.
@@ -140,6 +140,27 @@ def find_text(message: discord.Message) -> str:
 		if isinstance(embed.description, str) and len(embed.description) > 0:
 			text.append(embed.description)
 	return " ".join(text)
+
+
+def is_learnable(
+	channel: discord.abc.MessageableChannel
+	| discord.abc.GuildChannel
+	| discord.abc.PrivateChannel,
+) -> TypeGuard[LearnableChannel]:
+	return isinstance(channel, discord.TextChannel)
+
+
+def is_speakable(
+	channel: discord.abc.MessageableChannel
+	| discord.abc.GuildChannel
+	| discord.abc.PrivateChannel,
+) -> TypeGuard[SpeakableChannel]:
+	return (
+		isinstance(channel, discord.TextChannel)
+		or isinstance(channel, discord.StageChannel)
+		or isinstance(channel, discord.Thread)
+		or isinstance(channel, discord.VoiceChannel)
+	)
 
 
 async def send_help(ctx: commands.Context) -> None:

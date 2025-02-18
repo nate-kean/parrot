@@ -6,7 +6,7 @@ from discord.ext import commands
 
 from parrot import config, utils
 from parrot.bot import Parrot
-from parrot.utils import cast_not_none, tag, weasel
+from parrot.utils import cast_not_none, is_learnable, tag, weasel
 from parrot.utils.exceptions import NotRegisteredError
 
 
@@ -23,34 +23,30 @@ class MessageEventHandler(commands.Cog):
 		if message.author.id == cast_not_none(self.bot.user).id:
 			return
 
+		if is_learnable(message.channel):
+			try:
+				recorded = self.bot.crud.message.record(message)
+				if len(recorded) > 0:
+					logging.info(
+						f"Collected a message (ID: {message.id}) from user "
+						f"{tag(message.author)} (ID: {message.author.id})"
+					)
+				# TODO: implement in a way that doesn't run for _every_ collected
+				# message. Every hundred from one member? Every certain proportion
+				# of the size of a member's corpus?
+				# guaranteed to be Member because message is guaranteed above to be
+				# in a guild
+				# member = cast(discord.Member, message.author)
+				# corpus_update = (message.content for message in recorded)
+				# asyncio.create_task(
+				# 	self.bot.markov_models.update(member, corpus_update)
+				# )
+			except NotRegisteredError:
+				pass
+
 		# I am a mature person making a competent Discord bot.
 		if message.content == "ayy" and config.ayy_lmao:
 			await message.channel.send("lmao")
-
-		if not isinstance(message.channel, discord.TextChannel):
-			return
-
-		# Ignore NotRegisteredErrors; Parrot shouldn't learn from non-registered
-		# users, anyway.
-		try:
-			recorded = self.bot.crud.message.record(message)
-			if len(recorded) > 0:
-				logging.info(
-					f"Collected a message (ID: {message.id}) from user "
-					f"{tag(message.author)} (ID: {message.author.id})"
-				)
-			# TODO: implement in a way that doesn't run for _every_ collected
-			# message. Every hundred from one member? Every certain proportion
-			# of the size of a member's corpus?
-			# guaranteed to be Member because message is guaranteed above to be
-			# in a guild
-			# member = cast(discord.Member, message.author)
-			# corpus_update = (message.content for message in recorded)
-			# asyncio.create_task(
-			# 	self.bot.markov_models.update(member, corpus_update)
-			# )
-		except NotRegisteredError:
-			pass
 
 		# Randomly decide to wawa a message.
 		if (

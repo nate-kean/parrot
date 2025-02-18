@@ -2,9 +2,9 @@ import logging
 from types import ModuleType
 from typing import TYPE_CHECKING, ClassVar, cast
 
-import discord
 import sqlalchemy as sa
 import sqlmodel as sm
+from parrot.utils.types import LearnableChannel
 from tqdm import tqdm
 
 
@@ -86,7 +86,7 @@ class AddChannelAndMessageGuildIDFactory:
 
 	async def _search_channel(
 		self,
-		channel: discord.TextChannel,
+		channel: LearnableChannel,
 		candidate: "r7d0ffe4179c6.Message",
 	) -> tuple[int, bool]:
 		"""
@@ -151,9 +151,7 @@ class AddChannelAndMessageGuildIDFactory:
 			candidate.guild_id != self.target_value,
 		)
 
-	async def process_messages(
-		self, channels: list[discord.TextChannel]
-	) -> None:
+	async def process_messages(self, channels: list[LearnableChannel]) -> None:
 		"""
 		Scattershot scraping strategy: process chunks of 100 messages all over
 		Discord around relevant messages.

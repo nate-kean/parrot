@@ -13,6 +13,7 @@ from parrot.utils import (
 	ParrotEmbed,
 	cast_not_none,
 	discord_caps,
+	is_speakable,
 	trace,
 	weasel,
 )
@@ -132,8 +133,8 @@ class Text(commands.Cog):
 			avatar_url = member.display_avatar.url
 
 		webhook = (
-			await self.bot.webhooks.fetch(ctx.channel)
-			if isinstance(ctx.channel, discord.TextChannel)
+			await self.bot.webhooks.fetch(ctx)
+			if is_speakable(ctx.channel)
 			else None
 		)
 		if webhook is None:

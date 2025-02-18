@@ -6,8 +6,8 @@ import discord
 from discord.ext import commands
 
 from parrot.bot import Parrot
-from parrot.utils import HistoryCrawler, ParrotEmbed, checks
 from parrot.utils.converters import Memberlike
+from parrot.utils import HistoryCrawler, ParrotEmbed, checks, is_learnable
 from parrot.utils.exceptions import (
 	AlreadyScanning,
 	ChannelTypeError,
@@ -57,10 +57,7 @@ class Quickstart(commands.Cog):
 		right away.
 		"""
 		# region resolve member
-		if (
-			not isinstance(ctx.channel, discord.TextChannel)
-			or ctx.guild is None
-		):
+		if not is_learnable(ctx.channel) or ctx.guild is None:
 			raise ChannelTypeError("Quickstart is only available in servers.")
 		member = cast(discord.Member | None, user)
 		if member is None or ctx.author == member:
@@ -134,7 +131,7 @@ class Quickstart(commands.Cog):
 			)
 			for channel_id in learning_channel_ids:
 				channel = await self.bot.fetch_channel(channel_id)
-				if not isinstance(channel, discord.TextChannel):
+				if not is_learnable(channel):
 					continue
 				try:
 					member = await channel.guild.fetch_member(member.id)

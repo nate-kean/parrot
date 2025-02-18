@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 from parrot.bot import Parrot
-from parrot.utils import cast_not_none
+from parrot.utils import cast_not_none, is_learnable
 
 
 class RawMessageEditEventHandler(commands.Cog):
@@ -21,8 +21,8 @@ class RawMessageEditEventHandler(commands.Cog):
 		if "content" not in event.data:
 			logging.error(f"Unexpected message edit event format: {event.data}")
 			return
-		channel = self.bot.get_channel(event.channel_id)
-		if not isinstance(channel, discord.TextChannel):
+		channel = await self.bot.fetch_channel(event.channel_id)
+		if not is_learnable(channel):
 			return
 		message = await channel.fetch_message(event.message_id)
 		recorded = self.bot.crud.message.record(message)
