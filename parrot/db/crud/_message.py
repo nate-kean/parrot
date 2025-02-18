@@ -38,9 +38,6 @@ class CRUDMessage(SubCRUD):
 			# Not a Parrot command.
 			not message.content.startswith(config.command_prefix)
 			and
-			# Only learn in text channels, not DMs (or anywhere else).
-			isinstance(message.channel, discord.TextChannel)
-			and
 			# Most bots' commands start with non-alphanumeric characters, so if
 			# a message starts with one other than a known Markdown character or
 			# special Discord character, Parrot should just avoid it because
@@ -58,9 +55,7 @@ class CRUDMessage(SubCRUD):
 			message.webhook_id is None
 			and
 			# Parrot must be allowed to learn in this channel.
-			self.bot.crud.channel.has_permission(
-				message.channel, "can_learn_here"
-			)
+			self.bot.crud.channel.can_learn_here(message.channel)
 			and
 			# People will often say "v" or "z" on accident while spamming,
 			# and it doesn't really make for good learning material.

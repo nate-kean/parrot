@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 
 import parrot.db.models as p
@@ -42,7 +41,7 @@ class Admin(commands.Cog):
 			await ctx.message.add_reaction("❌")
 
 	@commands.group(
-		aliases=["channels"],
+		aliases=["channels", "learning"],
 		invoke_without_command=True,
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
@@ -50,141 +49,68 @@ class Admin(commands.Cog):
 		self,
 		ctx: commands.Context,
 		action: str | None = None,
-		channel_type: str | None = None,
 		channel: LearnableChannel | None = None,
 	) -> None:
-		"""Manage Parrot's channel permissions for this server."""
+		"""Manage Parrot's learning permissions for this server."""
 		if action is None:
 			await send_help(ctx)
 
-	@channel.group(
+	@channel.command(
 		aliases=["enable"],
-		brief="Let Parrot learn or speak in a channel.",
-		invoke_without_command=True,
+		brief="Let Parrot learn in a new channel.",
 	)
 	@commands.check(checks.is_admin)
+	@trace
 	async def add(
 		self,
 		ctx: commands.Context,
-		channel_type: str | None = None,
-		channel: discord.TextChannel | None = None,
-	) -> None:
-		"""Give Parrot learning or speaking permission in a new channel."""
-		if channel_type is None:
-			await send_help(ctx)
-
-	@add.command(name="learning", brief="Let Parrot learn in a new channel.")
-	@trace
-	async def add_learning(
-		self, ctx: commands.Context, channel: discord.TextChannel
+		channel: LearnableChannel,
 	) -> None:
 		"""
 		Give Parrot permission to learn in a new channel.
 		Parrot will start to collect messages from registered users in this
 		channel.
 		"""
-		changed = self.bot.crud.channel.set_permission_flag(
-			channel, "can_learn_here", True
-		)
+		changed = self.bot.crud.channel.set_can_learn_here(channel, True)
 		if changed:
 			await ctx.send(f"✅ Now learning in {channel.mention}.")
 		else:
 			await ctx.send(f"⚠️️ Already learning in {channel.mention}!")
 
-	@add.command(name="speaking", brief="Let Parrot speak in a new channel.")
-	@trace
-	async def add_speaking(
-		self, ctx: commands.Context, channel: discord.TextChannel
-	) -> None:
-		"""
-		Give Parrot permission to speak in a new channel.
-		Parrot will be able to imitate people in this channel.
-		"""
-		changed = self.bot.crud.channel.set_permission_flag(
-			channel, "can_speak_here", True
-		)
-		if changed:
-			await ctx.send(f"✅ Now able to speak in {channel.mention}.")
-		else:
-			await ctx.send(f"⚠️️ Already able to speak in {channel.mention}!")
-
-	@channel.group(
+	@channel.command(
 		aliases=["disable", "delete"],
-		brief="Remove Parrot's learning or speaking permission somewhere.",
-		invoke_without_command=True,
+		brief="Remove Parrot's learning permission in a channel.",
 	)
 	@commands.check(checks.is_admin)
+	@trace
 	async def remove(
 		self,
 		ctx: commands.Context,
-		channel_type: str | None = None,
-		channel: discord.TextChannel | None = None,
-	) -> None:
-		"""Remove Parrot's learning or speaking permission in a channel."""
-		if channel_type is None:
-			await send_help(ctx)
-
-	@remove.command(
-		name="learning",
-		brief="Remove Parrot's learning permission in a channel.",
-	)
-	@trace
-	async def remove_learning(
-		self, ctx: commands.Context, channel: discord.TextChannel
+		channel: LearnableChannel,
 	) -> None:
 		"""
 		Remove Parrot's permission to learn in a channel.
 		Parrot will stop collecting messages in this channel.
 		"""
-		changed = self.bot.crud.channel.set_permission_flag(
-			channel, "can_learn_here", False
-		)
+		changed = self.bot.crud.channel.set_can_learn_here(channel, False)
 		if changed:
 			await ctx.send(f"❌ No longer learning in {channel.mention}.")
 		else:
 			await ctx.send(f"⚠️️ Already not learning in {channel.mention}!")
 
-	@remove.command(
-		name="speaking",
-		brief="Remove Parrot's speaking permission in a channel.",
-	)
-	@trace
-	async def remove_speaking(
-		self, ctx: commands.Context, channel: discord.TextChannel
-	) -> None:
-		"""
-		Remove Parrot's permission to speak in a channel.
-		Parrot will no longer be able to imitate people in this channel.
-		"""
-		changed = self.bot.crud.channel.set_permission_flag(
-			channel, "can_speak_here", False
-		)
-		if changed:
-			await ctx.send(f"❌ No longer able to speak in {channel.mention}.")
-		else:
-			await ctx.send(f"⚠️️ Already not able to speak in {channel.mention}!")
-
-	@channel.group(invoke_without_command=True)
+	@channel.command(name="learning")
 	@trace
 	async def view(
-		self, ctx: commands.Context, channel_type: str | None = None
-	) -> None:
-		"""View the channels Parrot can speak or learn in."""
-		if channel_type is None:
-			await send_help(ctx)
-
-	async def do_view_channels(
 		self,
-		*,
 		ctx: commands.Context,
-		permission: Permission,
-		guild_id: int | None,
-		message: str,
-		failure_message: str,
+		guild_id: int | None = None,
 	) -> None:
 		raise NotImplementedError(
 			"This command is out of order while pagination still hasn't been "
 			"reimplemented"
+		)
+		failure_message = (
+			"Parrot can't speak in DMs. Try passing in a guild ID."
 		)
 		if guild_id is None:
 			if ctx.guild is None:
@@ -196,12 +122,10 @@ class Admin(commands.Cog):
 			await ctx.send(failure_message)
 			return
 
-		ids = self.bot.crud.guild.get_channel_ids_with_permission(
-			guild, permission
-		)
+		ids = self.bot.crud.guild.get_learning_channel_ids(guild)
 		channel_mentions = [c.mention for c in guild.channels if c.id in ids]
 
-		embed = ParrotEmbed(title=message)
+		embed = ParrotEmbed(title="Parrot is learning from these channels:")
 		if len(channel_mentions) == 0:
 			embed.description = "None"
 			await ctx.send(embed=embed)
@@ -214,34 +138,6 @@ class Admin(commands.Cog):
 		# 	template_embed=embed,
 		# )
 		# await paginator.run()
-
-	@view.command(name="learning")
-	@trace
-	async def view_learning(
-		self, ctx: commands.Context, guild_id: int | None = None
-	) -> None:
-		"""View the channels Parrot is learning from."""
-		await self.do_view_channels(
-			ctx=ctx,
-			permission="can_learn_here",
-			guild_id=guild_id,
-			message="Parrot is learning from these channels:",
-			failure_message="Parrot can't speak in DMs. Try passing in a guild ID.",
-		)
-
-	@view.command(name="speaking")
-	@trace
-	async def view_speaking(
-		self, ctx: commands.Context, guild_id: int | None = None
-	) -> None:
-		"""View the channels Parrot can imitate people in."""
-		await self.do_view_channels(
-			ctx=ctx,
-			permission="can_speak_here",
-			guild_id=guild_id,
-			message="Parrot can speak in these channels:",
-			failure_message="Parrot can't speak in DMs. Try passing in a guild ID.",
-		)
 
 	@commands.group(invoke_without_command=True)
 	@commands.cooldown(2, 4, commands.BucketType.user)

@@ -124,10 +124,8 @@ class Quickstart(commands.Cog):
 			# Create an iterator representing up to 100,000 messages since the
 			# user joined the server.
 			histories: list[AsyncIterator[discord.Message]] = []
-			learning_channel_ids = (
-				self.bot.crud.guild.get_channel_ids_with_permission(
-					ctx.guild, "can_learn_here"
-				)
+			learning_channel_ids = self.bot.crud.guild.get_learning_channel_ids(
+				ctx.guild
 			)
 			for channel_id in learning_channel_ids:
 				channel = await self.bot.fetch_channel(channel_id)

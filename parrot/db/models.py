@@ -34,7 +34,6 @@ SQLModel.metadata.naming_convention = NAMING_CONVENTION
 
 class Channel(SQLModel, table=True):
 	id: Snowflake = Field(primary_key=True)
-	can_speak_here: bool = False
 	can_learn_here: bool = False
 	webhook_id: Snowflake | None = None
 	guild_id: Snowflake = Field(foreign_key="guild.id")

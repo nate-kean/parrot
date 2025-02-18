@@ -8,20 +8,18 @@ from sqlalchemy import ScalarResult
 
 import parrot.db.models as p
 from parrot import config
-from parrot.utils.types import Permission, Snowflake
+from parrot.utils.types import Snowflake
 
 from .types import SubCRUD
 
 
 class CRUDGuild(SubCRUD):
-	def get_channel_ids_with_permission(
-		self, guild: discord.Guild, permission: Permission
+	def get_learning_channel_ids(
+		self, guild: discord.Guild
 	) -> ScalarResult[Snowflake]:
 		statement = sm.select(p.Channel.id).where(
 			p.Channel.guild_id == guild.id,
-			getattr(p.Channel, permission) == True,
-			# TODO: does this work?
-			# getattr(p.Channel, permission),
+			p.Channel.guild_id == True,
 		)
 		return self.bot.db_session.exec(statement)
 
