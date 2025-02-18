@@ -10,7 +10,7 @@ from parrot.utils import cast_not_none, is_learnable, tag, weasel
 from parrot.utils.exceptions import NotRegisteredError
 
 
-class MessageEventHandler(commands.Cog):
+class Learn(commands.Cog):
 	def __init__(self, bot: Parrot):
 		self.bot = bot
 
@@ -58,4 +58,4 @@ class MessageEventHandler(commands.Cog):
 
 
 async def setup(bot: Parrot) -> None:
-	await bot.add_cog(MessageEventHandler(bot))
+	await bot.add_cog(Learn(bot))

@@ -59,7 +59,6 @@ class Parrot(commands.AutoShardedBot):
 		self._autosave.start()
 		async with asyncio.TaskGroup() as tg:
 			tg.create_task(self.load_extension("jishaku"))
-			tg.create_task(self.load_extension_folder("event_listeners"))
 			tg.create_task(self.load_extension_folder("commands"))
 			tg.create_task(self.load_extension_folder("cogs"))
 
