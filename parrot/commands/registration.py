@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from parrot.bot import Parrot
 from parrot.utils import ParrotEmbed, trace
-from parrot.utils.converters import Memberlike
+from parrot.utils.converters import Userlike
 from parrot.utils.exceptions import UserPermissionError
 
 
@@ -21,7 +21,7 @@ class Registration(commands.Cog):
 	@commands.guild_only()
 	@trace
 	async def register(
-		self, ctx: commands.Context, who: Memberlike | None = None
+		self, ctx: commands.Context, who: Userlike | None = None
 	) -> None:
 		"""Register to let Parrot imitate you."""
 		# Pylance doesn't get along with `commands.Converter`s
@@ -62,7 +62,7 @@ class Registration(commands.Cog):
 	@commands.guild_only()
 	@trace
 	async def unregister(
-		self, ctx: commands.Context, who: Memberlike | None = None
+		self, ctx: commands.Context, who: Userlike | None = None
 	) -> None:
 		"""
 		Remove your registration from Parrot.
@@ -107,7 +107,7 @@ class Registration(commands.Cog):
 	@commands.guild_only()
 	@trace
 	async def status(
-		self, ctx: commands.Context, who: Memberlike | None = None
+		self, ctx: commands.Context, who: Userlike | None = None
 	) -> None:
 		"""
 		Check if you're registered with Parrot.

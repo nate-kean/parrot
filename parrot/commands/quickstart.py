@@ -6,8 +6,8 @@ import discord
 from discord.ext import commands
 
 from parrot.bot import Parrot
-from parrot.utils.converters import Memberlike
 from parrot.utils import HistoryCrawler, ParrotEmbed, checks, is_learnable
+from parrot.utils.converters import Userlike
 from parrot.utils.exceptions import (
 	AlreadyScanning,
 	ChannelTypeError,
@@ -50,7 +50,7 @@ class Quickstart(commands.Cog):
 	@commands.command()
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	async def quickstart(
-		self, ctx: commands.Context, user: Memberlike | None = None
+		self, ctx: commands.Context, user: Userlike | None = None
 	) -> None:
 		"""
 		Scrape your past messages in this server to get started using Parrot

@@ -17,7 +17,7 @@ from parrot.utils import (
 	trace,
 	weasel,
 )
-from parrot.utils.converters import FuzzyMemberlike
+from parrot.utils.converters import Memberlike
 from parrot.utils.exceptions import TextNotFoundError
 
 
@@ -156,9 +156,7 @@ class Text(commands.Cog):
 	@commands.command(aliases=["be"], brief="Imitate someone.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
 	@trace
-	async def imitate(
-		self, ctx: commands.Context, user: FuzzyMemberlike
-	) -> None:
+	async def imitate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""Imitate someone."""
 		logging.info(f"Imitating {user}")
 		await self._imitate_impl(ctx, cast(discord.Member, user))
@@ -166,9 +164,7 @@ class Text(commands.Cog):
 	@commands.command(brief="IMITATE SOMEONE.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
 	@trace
-	async def intimidate(
-		self, ctx: commands.Context, user: FuzzyMemberlike
-	) -> None:
+	async def intimidate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""IMITATE SOMEONE."""
 		logging.info(f"Intimidating {user}")
 		await self._imitate_impl(

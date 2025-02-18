@@ -4,7 +4,7 @@ from typing import Self, cast
 
 import markovify
 
-from parrot.utils import cast_not_none, executor_function
+from parrot.utils import executor_function
 
 
 class ParrotText(markovify.Text):
@@ -92,11 +92,9 @@ class Gibberish(markovify.Text):
 		Make some gibberish. If it ends up the same as the original text,
 		maybe try again. But not always, because sometimes it's funny!
 		"""
-		acceptable = False
-		sentence = ""
-		while not acceptable:
+		while True:
 			sentence = super().make_sentence(init_state=init_state, **kwargs)
-			acceptable = sentence is not None and (
+			if sentence is not None and (
 				sentence != self.original or random.random() < 0.2
-			)
-		return cast_not_none(sentence)
+			):
+				return sentence

@@ -17,7 +17,7 @@ from parrot.utils import (
 	tag,
 	trace,
 )
-from parrot.utils.converters import FuzzyMemberlike, Memberlike
+from parrot.utils.converters import Memberlike, Userlike
 from parrot.utils.exceptions import (
 	NoDataError,
 	UserNotFoundError,
@@ -86,7 +86,7 @@ class Data[**P](commands.Cog):
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@trace
 	async def avatar(
-		self, ctx: commands.Context, who: FuzzyMemberlike | None = None
+		self, ctx: commands.Context, who: Memberlike | None = None
 	) -> None:
 		"""Show your Imitate Clone's avatar."""
 		who_ = cast(discord.Member | None, who)
@@ -106,7 +106,7 @@ class Data[**P](commands.Cog):
 	) -> None:
 		if who is not None:
 			try:
-				who_ = await Memberlike().convert(ctx, who)
+				who_ = await Userlike().convert(ctx, who)
 			except UserNotFoundError:
 				for command in self.forget.commands:
 					if command.name == who:

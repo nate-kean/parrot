@@ -21,7 +21,7 @@ type Check = Callable[
 ]
 
 
-class BaseMemberlike(commands.Converter):
+class BaseUserlike(commands.Converter):
 	def __init__(self):
 		self._checks: list[Check] = []
 
@@ -53,7 +53,7 @@ class BaseMemberlike(commands.Converter):
 			raise UserNotFoundError.Username(argument)
 
 
-class Memberlike(BaseMemberlike):
+class Userlike(BaseUserlike):
 	"""
 	A string that can resolve to a Member.
 	Works with:
@@ -75,11 +75,11 @@ class Memberlike(BaseMemberlike):
 			return cast(discord.Member, ctx.author)
 
 
-class FuzzyMemberlike(Memberlike):
+class Memberlike(Userlike):
 	"""
 	A string that can resolve to a Member -- plus novelty options!
 	Works with:
-		- Everything Memberlike does
+		- Everything Userlike does
 		- The string "you", "yourself", or "previous" which resolves to the last
 			person who spoke in the channel
 		- "someone", "anyone", whatever, the rest of them, read the code, that
