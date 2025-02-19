@@ -9,7 +9,6 @@ from parrot.utils import (
 	cast_not_none,
 	checks,
 	send_help,
-	tag,
 	trace,
 )
 from parrot.utils.types import LearnableChannel
@@ -18,27 +17,6 @@ from parrot.utils.types import LearnableChannel
 class Admin(commands.Cog):
 	def __init__(self, bot: Parrot):
 		self.bot = bot
-
-	@commands.command()
-	@commands.check(checks.is_admin)
-	@commands.cooldown(2, 4, commands.BucketType.user)
-	@trace
-	async def delete(self, ctx: commands.Context, message_id: int) -> None:
-		"""Delete a message that Parrot sent (including imitation messages)."""
-		message = await ctx.fetch_message(message_id)
-		guild = ctx.guild
-		me = guild.me if guild is not None else self.bot.user
-		if message.webhook_id is None:
-			author = message.author
-		else:
-			webhook = await self.bot.fetch_webhook(message.webhook_id)
-			author = webhook.user
-		if author == me:
-			await message.delete()
-			await ctx.message.add_reaction("✅")
-		else:
-			await ctx.send("❌ Parrot can only delete its own messages.")
-			await ctx.message.add_reaction("❌")
 
 	@commands.group(
 		aliases=["channels", "learning"],
@@ -138,49 +116,6 @@ class Admin(commands.Cog):
 		# 	template_embed=embed,
 		# )
 		# await paginator.run()
-
-	@commands.group(invoke_without_command=True)
-	@commands.cooldown(2, 4, commands.BucketType.user)
-	@commands.check(checks.is_admin)
-	@trace
-	async def nickname(
-		self, ctx: commands.Context, action: str | None = None
-	) -> None:
-		"""Manage Parrot's nickname for this server."""
-		if action is None:
-			await send_help(ctx)
-
-	@nickname.command(name="set")
-	@trace
-	async def nickname_set(
-		self, ctx: commands.Context, *, new_nick: str | None = None
-	) -> None:
-		"""Change Parrot's nickname."""
-		if new_nick is None:
-			await send_help(ctx)
-			return
-		if ctx.guild is None:
-			await ctx.send("Discord nicknames are only available in servers.")
-			return
-
-		await ctx.guild.me.edit(
-			nick=new_nick,
-			reason=f"Requested by {tag(ctx.author)}",
-		)
-		await ctx.send(f"✅ Parrot's nickname is now: {ctx.guild.me.nick}")
-
-	@nickname.command(name="remove", aliases=["delete"])
-	@trace
-	async def nickname_remove(self, ctx: commands.Context) -> None:
-		"""Get rid of Parrot's nickname."""
-		if ctx.guild is None:
-			await ctx.send("Discord nicknames are only available in servers.")
-			return
-		await ctx.guild.me.edit(
-			nick=None,
-			reason=f"Requested by {tag(ctx.author)}",
-		)
-		await ctx.send("✅ Parrot's nickname has been removed.")
 
 	@commands.group(invoke_without_command=True)
 	@commands.guild_only()
