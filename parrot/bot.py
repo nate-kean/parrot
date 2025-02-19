@@ -16,13 +16,6 @@ from parrot.db.managers.webhook import WebhookManager
 
 
 class Parrot(commands.AutoShardedBot):
-	http_session: aiohttp.ClientSession
-	db_session: sm.Session
-	crud: CRUD
-	markov_models: MarkovModelManager
-	antiavatars: AntiavatarManager
-	webhooks: WebhookManager
-
 	def __init__(self):
 		logging.info(f"discord.py {discord.__version__}")
 
