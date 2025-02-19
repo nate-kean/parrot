@@ -70,9 +70,8 @@ class Data[**P](commands.Cog):
 			description=download_url,
 		)
 		embed_download_link.set_footer(text="Link expires in 6 hours.")
-		asyncio.create_task(
-			user.send(embed=embed_download_link)
-		)  # No need to wait
+		# No need to wait
+		asyncio.create_task(user.send(embed=embed_download_link))
 
 		# Tell them to check their DMs.
 		embed_download_ready = ParrotEmbed(

@@ -2,6 +2,7 @@ from typing import cast
 
 import discord
 from discord.ext import commands, tasks
+
 from parrot.bot import Parrot
 from parrot.utils import is_learnable
 

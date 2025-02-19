@@ -45,7 +45,9 @@ class MarkovModelManager:
 		return result
 
 	async def update(
-		self, member: discord.Member, corpus_update: Iterable[str]
+		self,
+		member: discord.Member,
+		corpus_update: Iterable[str],
 	) -> None:
 		"""Update a local model in the cache. Does not affect the database."""
 		partial = markov.ParrotText(corpus_update)

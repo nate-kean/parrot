@@ -15,7 +15,8 @@ from .types import SubCRUD
 
 class CRUDGuild(SubCRUD):
 	def get_learning_channel_ids(
-		self, guild: discord.Guild
+		self,
+		guild: discord.Guild,
 	) -> ScalarResult[Snowflake]:
 		statement = sm.select(p.Channel.id).where(
 			p.Channel.guild_id == guild.id,
@@ -56,7 +57,8 @@ class CRUDGuild(SubCRUD):
 		self.bot.db_session.add(db_guild)
 
 	async def get_registered_member_ids(
-		self, guild: discord.Guild
+		self,
+		guild: discord.Guild,
 	) -> Sequence[Snowflake]:
 		return cast(
 			Sequence[Snowflake],

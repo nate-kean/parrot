@@ -18,7 +18,8 @@ if TYPE_CHECKING:
 
 class WebhookManager:
 	async def fetch(
-		self, ctx: "commands.Context[Parrot]"
+		self,
+		ctx: "commands.Context[Parrot]",
 	) -> discord.Webhook | None:
 		if not is_speakable(ctx.channel) or isinstance(
 			ctx.channel, discord.Thread

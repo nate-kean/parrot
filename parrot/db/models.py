@@ -14,10 +14,9 @@ component) is expected to be a valid Discord ID.
 
 # TODO: Feasible to keep all Markov chain generators in the database,
 # remove the in-memory cache?
-# NOTE: sa.PickleType?
+# NOTE: sa.PickleType to reduce de/serialization overhead?
 
-# TODO: understand .commit() and .refresh()/see if there are any occurrences
-# that can be deleted
+# TODO: understand .commit() and .refresh()
 
 # TODO: Are any of these Relationships or back-populations ones Parrot can get
 # away without having?
@@ -56,9 +55,9 @@ class Channel(SQLModel, table=True):
 class Message(SQLModel, table=True):
 	id: Snowflake = Field(primary_key=True)
 	content: str
+	guild_id: Snowflake = Field(foreign_key="guild.id")
 	author_id: Snowflake = Field(foreign_key="user.id")
 	channel_id: Snowflake = Field(foreign_key="channel.id")
-	guild_id: Snowflake = Field(foreign_key="guild.id")
 	__table_args__ = (
 		# Messages are going to be SELECTed almost exclusively by these columns,
 		# so declare an index for them
@@ -90,11 +89,11 @@ class Membership(SQLModel, table=True):
 
 	# Optional so Membership objects can be constructed through the user and
 	# guild attributes
-	user_id: Snowflake = Field(
-		default=None, foreign_key="user.id", primary_key=True
-	)
 	guild_id: Snowflake = Field(
 		default=None, foreign_key="guild.id", primary_key=True
+	)
+	user_id: Snowflake = Field(
+		default=None, foreign_key="user.id", primary_key=True
 	)
 	is_registered: bool = False
 	# Timestamp denoting when a user left this guild.
@@ -114,8 +113,8 @@ class Membership(SQLModel, table=True):
 	# Cascade delete conditions:
 	# - If a Membership's associated User is deleted.
 	# - If a Membership's associated Guild is deleted.
-	user: "User" = Relationship(back_populates="memberships")
 	guild: "Guild" = Relationship(back_populates="memberships")
+	user: "User" = Relationship(back_populates="memberships")
 	# TODO: this does work, right? Even without a bespoke foreign key column for
 	# it?
 	antiavatar: "Antiavatar" = Relationship(

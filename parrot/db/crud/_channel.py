@@ -56,7 +56,9 @@ class CRUDChannel(SubCRUD):
 		return self.bot.db_session.exec(statement).first()
 
 	def set_webhook_id(
-		self, channel: SpeakableChannel, webhook: discord.Webhook
+		self,
+		channel: SpeakableChannel,
+		webhook: discord.Webhook,
 	) -> None:
 		db_channel = self.bot.db_session.get(
 			p.Channel, channel.id
