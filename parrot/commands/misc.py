@@ -27,9 +27,10 @@ class Miscellaneous(commands.Cog):
 		garlic_os = await self.bot.fetch_user(206235904644349953)
 
 		bio = (
-			f"Parrot can imitate everyone. Do `{self.bot.command_prefix}imitate"
-			"me` to have Parrot imitate you, or do"
-			f"`{self.bot.command_prefix}help` to see what else Parrot can do."
+			f"Parrot can imitate everyone. "
+			f"Do `{self.bot.command_prefix}imitate me` to have Parrot imitate "
+			f"you, or do `{self.bot.command_prefix}help` to see what else "
+			"Parrot can do."
 		)
 
 		embed = ParrotEmbed(

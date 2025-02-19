@@ -133,7 +133,8 @@ class Registration(commands.Cog):
 			)
 
 	@commands.command(
-		name="togglerandomwawa", brief="Check if you're registered with Parrot."
+		name="togglerandomwawa",
+		brief="Un/block Parrot from randomly doing |wawa on you.",
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@commands.guild_only()
