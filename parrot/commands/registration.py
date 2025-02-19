@@ -137,7 +137,6 @@ class Registration(commands.Cog):
 		brief="Un/block Parrot from randomly doing |wawa on you.",
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	@commands.guild_only()
 	@trace
 	async def toggle_random_wawa(self, ctx: commands.Context) -> None:
 		wants = self.bot.crud.user.toggle_random_wawa(ctx.author)
