@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import sqlmodel as sm
 
@@ -9,37 +9,30 @@ from parrot.utils.types import AnyUser
 from .types import SubCRUD
 
 
-if TYPE_CHECKING:
-	from parrot.bot import Parrot
-
-
 class CRUDUser(SubCRUD):
 	"""Methods on Users that are Guild-agnostic
 
 	I.e., these methods regard a User's global state
 	"""
 
-	def __init__(self, bot: "Parrot"):
-		super().__init__(bot)
-
 	def wants_wawa(self, user: AnyUser) -> bool:
 		statement = sm.select(p.User.wants_random_wawa).where(
 			p.User.id == user.id
 		)
-		return self.bot.db_session.exec(statement).first() or False
+		return self.session.exec(statement).first() or False
 
 	def toggle_random_wawa(self, user: AnyUser) -> bool:
 		"""
 		Toggle your "wants random wawa" setting globally.
 		Returns new state.
 		"""
-		db_user = self.bot.db_session.get(p.User, user.id) or p.User(id=user.id)
+		db_user = self.session.get(p.User, user.id) or p.User(id=user.id)
 		db_user.wants_random_wawa = not db_user.wants_random_wawa
-		self.bot.db_session.add(db_user)
+		self.session.add(db_user)
 		return db_user.wants_random_wawa
 
 	def get_raw(self, user: AnyUser) -> dict[str, Any] | None:
-		db_user = self.bot.db_session.get(p.User, user.id)
+		db_user = self.session.get(p.User, user.id)
 		if db_user is None:
 			return None
 		# TODO: this dumps the relationships too, right?
@@ -48,7 +41,7 @@ class CRUDUser(SubCRUD):
 
 	def exists(self, user: AnyUser) -> bool:
 		"""Search Parrot's database for any trace of this user."""
-		return self.bot.db_session.get(p.User, user.id) is not None
+		return self.session.get(p.User, user.id) is not None
 
 	async def delete_all_data(self, user: AnyUser | p.User) -> bool:
 		"""
@@ -58,7 +51,7 @@ class CRUDUser(SubCRUD):
 		if isinstance(user, p.User):
 			db_user = user
 		else:
-			db_user = self.bot.db_session.get(p.User, user.id)
+			db_user = self.session.get(p.User, user.id)
 			if db_user is None:
 				return False
 
@@ -80,5 +73,5 @@ class CRUDUser(SubCRUD):
 					pass
 
 		# Delete all their information in the database
-		self.bot.db_session.delete(db_user)
+		self.session.delete(db_user)
 		return True

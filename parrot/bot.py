@@ -41,8 +41,8 @@ class Parrot(commands.AutoShardedBot):
 			),
 			case_insensitive=True,
 		)
-		self.db_session = sm.Session(sm.create_engine(config.db_url))
-		self.crud = CRUD(self)
+		self._db_session = sm.Session(sm.create_engine(config.db_url))
+		self.crud = CRUD(self, self._db_session)
 		self.markov_models = MarkovModelManager(self.crud)
 		self.webhooks = WebhookManager()
 
@@ -66,7 +66,7 @@ class Parrot(commands.AutoShardedBot):
 
 	async def _async__del__(self) -> None:
 		logging.info("Parrot shutting down...")
-		self.db_session.close()
+		self._db_session.close()
 		self._autosave.cancel()
 		await self.close()  # Log out of Discord
 		await self.http_session.close()
@@ -93,7 +93,7 @@ class Parrot(commands.AutoShardedBot):
 		"""Commit the database on a timer.
 		Far more performant than committing on every query."""
 		logging.info("Saving to database...")
-		self.db_session.commit()
+		self._db_session.commit()
 		logging.info("Save complete.")
 
 	def go(self) -> None:

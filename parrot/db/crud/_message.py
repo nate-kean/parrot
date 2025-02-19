@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import cast
 
 import discord
 
@@ -10,14 +10,7 @@ from parrot.utils.types import Snowflake
 from .types import SubCRUD
 
 
-if TYPE_CHECKING:
-	from parrot.bot import Parrot
-
-
 class CRUDMessage(SubCRUD):
-	def __init__(self, bot: "Parrot"):
-		super().__init__(bot)
-
 	@staticmethod
 	def _extract_text(message: discord.Message) -> str:
 		for embed in message.embeds:
@@ -100,7 +93,7 @@ class CRUDMessage(SubCRUD):
 
 		# Convert the messages to the database's format and add them to this
 		# user's corpus.
-		self.bot.db_session.add_all(
+		self.session.add_all(
 			p.Message(
 				id=message.id,
 				author_id=member.id,
@@ -114,15 +107,15 @@ class CRUDMessage(SubCRUD):
 		return messages_filtered
 
 		# for message in messages:
-		# 	self.bot.db_session.refresh(message)
+		# 	self.session.refresh(message)
 		# if len(messages) > 0:
 		# 	return self.corpora.add(user, messages)
 		# return 0
 
 	def delete(self, message_id: Snowflake) -> p.Message | None:
 		"""Delete a message from the database."""
-		db_message = self.bot.db_session.get(p.Message, message_id)
+		db_message = self.session.get(p.Message, message_id)
 		if db_message is None:
 			return None
-		self.bot.db_session.delete(db_message)
+		self.session.delete(db_message)
 		return db_message

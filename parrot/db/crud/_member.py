@@ -21,17 +21,17 @@ class CRUDMember(SubCRUD):
 			p.Membership.user_id == member.id,
 			p.Membership.guild_id == member.guild.id,
 		)
-		return self.bot.db_session.exec(statement).first()
+		return self.session.exec(statement).first()
 
 	def set_registered(self, member: discord.Member, value: bool) -> None:
 		membership = self._get(member) or p.Membership(
-			user=self.bot.db_session.get(p.User, member.id)
-			or p.User(id=member.id),
-			guild=self.bot.db_session.get(p.Guild, member.guild.id)
+			user=self.session.get(p.User, member.id) or p.User(id=member.id),
+			guild=self.session.get(p.Guild, member.guild.id)
 			or p.Guild(id=member.guild.id),
 		)
 		membership.is_registered = value
-		self.bot.db_session.add(membership)
+		self.session.add(membership)
+		self.session.commit()
 
 	def assert_registered(self, member: discord.Member) -> None:
 		if not self.is_registered(member):
@@ -50,38 +50,43 @@ class CRUDMember(SubCRUD):
 		self.assert_registered(member)
 		statement = sm.select(p.Message.content).where(
 			p.Message.author_id == member.id,
-			p.Message.guild_id == member.guild.id,
+			# DEBUG
+			# p.Message.guild_id == member.guild.id,
+			p.Message.guild_id == 280298381807714304,
 		)
-		return self.bot.db_session.exec(statement).all()
+		return self.session.exec(statement).all()
 
 	def get_antiavatar(self, member: discord.Member) -> p.Antiavatar | None:
 		self.assert_registered(member)
 		statement = sm.select(p.Antiavatar).where(
-			p.Antiavatar.user_id == member.id,
 			p.Antiavatar.guild_id == member.guild.id,
+			p.Antiavatar.user_id == member.id,
 		)
-		return self.bot.db_session.exec(statement).first()
+		return self.session.exec(statement).first()
 
-	def set_antiavatar(
-		self, member: discord.Member, avatar_info_in: p.AntiavatarCreate
+	def update_antiavatar(self, antiavatar: p.Antiavatar) -> None:
+		self.session.add(antiavatar)
+		self.session.commit()
+		self.session.refresh(antiavatar)
+
+	def create_antiavatar(
+		self, member: discord.Member, antiavatar_in: p.AntiavatarCreate
 	) -> None:
 		antiavatar = p.Antiavatar(
-			user_id=member.id,
 			guild_id=member.guild.id,
-			url=avatar_info_in.url,
-			message_id=avatar_info_in.message_id,
-			original_url=avatar_info_in.original_url,
+			user_id=member.id,
+			url=antiavatar_in.url,
+			message_id=antiavatar_in.message_id,
+			original_url=antiavatar_in.original_url,
 		)
-		self.bot.db_session.add(antiavatar)
-		self.bot.db_session.commit()
-		self.bot.db_session.refresh(antiavatar)
+		self.update_antiavatar(antiavatar)
 
 	def mark_gone(self, member: discord.Member) -> bool:
 		membership = self._get(member)
 		if membership is None:
 			return False
 		membership.ended_since = discord.utils.time_snowflake(dt.datetime.now())
-		self.bot.db_session.add(membership)
+		self.session.add(membership)
 		return True
 
 	def mark_present(self, member: discord.Member) -> bool:
@@ -89,13 +94,13 @@ class CRUDMember(SubCRUD):
 		if membership is None:
 			return False
 		membership.ended_since = None
-		self.bot.db_session.add(membership)
+		self.session.add(membership)
 		return True
 
 	async def raw_delete_membership(self, membership: p.Membership) -> None:
 		db_user = membership.user
 		was_last_membership = len(db_user.memberships) == 1
-		self.bot.db_session.delete(membership)
+		self.session.delete(membership)
 		if was_last_membership:
 			await self.bot.crud.user.delete_all_data(db_user)
 
