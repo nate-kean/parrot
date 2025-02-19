@@ -16,7 +16,7 @@ from parrot.utils.exceptions import (
 
 
 type Check = Callable[
-	[commands.Context, str | None], Awaitable[discord.Member | None]
+	[commands.Context[Parrot], str | None], Awaitable[discord.Member | None]
 ]
 
 
@@ -93,7 +93,7 @@ class Memberlike(Userlike):
 		self._checks.append(self._someone)
 
 	async def _you(
-		self, ctx: commands.Context, text: str | None
+		self, ctx: commands.Context[Parrot], text: str | None
 	) -> discord.Member | None:
 		"""Get the author of the last message send in the channel who isn't
 		Parrot or the person who sent this command."""
@@ -115,7 +115,7 @@ class Memberlike(Userlike):
 				return await ctx.guild.fetch_member(message.author.id)
 
 	async def _someone(
-		self, ctx: commands.Context, text: str | None
+		self, ctx: commands.Context[Parrot], text: str | None
 	) -> discord.Member | None:
 		"""Choose a random registered user in this channel."""
 		if text not in ("someone", "somebody", "anyone", "anybody"):
@@ -125,9 +125,9 @@ class Memberlike(Userlike):
 				f'"{config.command_prefix}imitate someone" is only available '
 				"in regular server text channels."
 			)
-		registered_member_ids_here = await cast(
-			Parrot, ctx.bot
-		).crud.guild.get_registered_member_ids(ctx.guild)
+		registered_member_ids_here = (
+			await ctx.bot.crud.guild.get_registered_member_ids(ctx.guild)
+		)
 		if len(registered_member_ids_here) == 0:
 			raise UserNotFoundError(
 				"Nobody is registered with Parrot in this server."

@@ -44,7 +44,7 @@ class Parrot(commands.AutoShardedBot):
 		self.db_session = sm.Session(sm.create_engine(config.db_url))
 		self.crud = CRUD(self)
 		self.markov_models = MarkovModelManager(self.crud)
-		self.webhooks = WebhookManager(self)
+		self.webhooks = WebhookManager()
 
 	async def setup_hook(self) -> None:
 		"""Constructor Part 2: Enter Async"""
