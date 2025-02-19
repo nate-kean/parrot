@@ -43,7 +43,7 @@ class Miscellaneous(commands.Cog):
 		)
 		embed.set_thumbnail(url=cast_not_none(self.bot.user).display_avatar.url)
 		embed.set_footer(
-			text=f"Parrot v2 • Made by {tag(garlic_os)}",
+			text=f"Parrot v4 • Made by {tag(garlic_os)}",
 			icon_url=garlic_os.display_avatar.url,
 		)
 
