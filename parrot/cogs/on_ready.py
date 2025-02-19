@@ -6,7 +6,7 @@ from parrot.bot import Parrot
 from parrot.utils import tag
 
 
-class ReadyEventHandler(commands.Cog):
+class ReadyHandler(commands.Cog):
 	initialized: bool
 
 	def __init__(self, bot: Parrot):
@@ -30,4 +30,4 @@ class ReadyEventHandler(commands.Cog):
 
 
 async def setup(bot: Parrot) -> None:
-	await bot.add_cog(ReadyEventHandler(bot))
+	await bot.add_cog(ReadyHandler(bot))

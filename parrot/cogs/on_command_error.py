@@ -10,7 +10,7 @@ from parrot.bot import Parrot
 from parrot.utils import ParrotEmbed
 
 
-class ErrorHandler(commands.Cog):
+class CommandErrorHandler(commands.Cog):
 	@commands.Cog.listener()
 	async def on_command_error(
 		self, ctx: commands.Context, error: CommandError
@@ -41,4 +41,4 @@ class ErrorHandler(commands.Cog):
 
 
 async def setup(bot: Parrot) -> None:
-	await bot.add_cog(ErrorHandler())
+	await bot.add_cog(CommandErrorHandler())
