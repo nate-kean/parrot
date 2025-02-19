@@ -142,12 +142,12 @@ def process_lower_level[**P](
 
 
 @dataclass
-class Antiavatar:
+class AntiavatarFile:
 	buffer: BytesIO
-	file_ext: str
+	ext: str
 
 
-async def create_antiavatar(user: AnyUser) -> Antiavatar:
+async def create_antiavatar_file(user: AnyUser) -> AntiavatarFile:
 	# grab user image and covert to RGBA
 	img = await fetch_image(user.display_avatar.url)
 	is_gif = getattr(img, "is_animated", False)
@@ -178,7 +178,7 @@ async def create_antiavatar(user: AnyUser) -> Antiavatar:
 		buffer = await process_lower_level(img, resize_img, scale)
 		n_bytes = buffer.getbuffer().nbytes
 
-	logging.info(f"Processed new avatar for {tag(user)}")
-	return Antiavatar(
-		buffer=buffer, file_ext=img.format if img.format is not None else "png"
+	logging.info(f"Generated new antiavatar for {tag(user)}")
+	return AntiavatarFile(
+		buffer=buffer, ext=img.format if img.format is not None else "png"
 	)

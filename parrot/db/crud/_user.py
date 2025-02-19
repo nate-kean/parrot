@@ -68,7 +68,7 @@ class CRUDUser(SubCRUD):
 			for membership in db_user.memberships:
 				if membership.antiavatar is not None:
 					tg.create_task(
-						self.bot.antiavatars.delete_antiavatar(
+						self.bot.antiavatars.delete_antiavatar_file(
 							membership.antiavatar
 						)
 					)

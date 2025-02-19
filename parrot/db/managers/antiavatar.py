@@ -53,35 +53,32 @@ class AntiavatarManager:
 		return cls(AntiavatarManager._constructor_token, bot, avatar_channel)
 
 	async def fetch(self, member: discord.Member) -> str:
-		info = self.bot.crud.member.get_antiavatar(member)
+		self.bot.crud.member.assert_registered(member)
+		antiavatar = self.bot.crud.member.get_antiavatar(member)
 
-		has_preexisting_antiavatar = info is not None
+		has_preexisting_antiavatar = antiavatar is not None
 		if has_preexisting_antiavatar:
-			# Parrot has made an antiavatar for this member before.
-			# member.display_avatar: "For regular members this is just their
-			# avatar, but if they have a guild specific avatar then that is
-			# returned instead."
 			has_changed_avatar = AntiavatarManager._url_id(
 				member.display_avatar.url
-			) != AntiavatarManager._url_id(info.original_url)
+			) != AntiavatarManager._url_id(antiavatar.original_url)
 			if not has_changed_avatar:
 				# Use the cached antiavatar.
-				return info.url
+				return antiavatar.url
 
 			# Else, user has changed their avatar here; respect the user's
 			# privacy by deleting the message with their old avatar.
 			# (This operation doesn't need to complete before continuing)
-			asyncio.create_task(self.delete_antiavatar(info))
+			asyncio.create_task(self.delete_antiavatar_file(antiavatar))
 
 		# User has changed their avatar in this guild since last time they did
 		# |imitate, and/or Parrot has never made the antiavatar for this avatar,
 		# so we must create this avatar's anti.
-		antiavatar = await image.create_antiavatar(member)
+		antiavatar_file = await image.create_antiavatar_file(member)
 
 		# Post the new antiavatar to the "avatar store" Discord channel.
 		message = await self.avatar_channel.send(
 			file=discord.File(
-				antiavatar.buffer, f"{member.id}.{antiavatar.file_ext}"
+				antiavatar_file.buffer, f"{member.id}.{antiavatar_file.ext}"
 			)
 		)
 
@@ -96,8 +93,8 @@ class AntiavatarManager:
 		)
 		return message.attachments[0].url
 
-	async def delete_antiavatar(self, avatar_info: p.Antiavatar) -> None:
-		message_id = avatar_info.message_id
+	async def delete_antiavatar_file(self, antiavatar: p.Antiavatar) -> None:
+		message_id = antiavatar.message_id
 		try:
 			message = await self.avatar_channel.fetch_message(message_id)
 		except discord.NotFound:
