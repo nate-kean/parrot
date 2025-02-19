@@ -76,7 +76,7 @@ class Admin(commands.Cog):
 		else:
 			await ctx.send(f"⚠️️ Already not learning in {channel.mention}!")
 
-	@channel.command(name="learning")
+	@channel.command(aliases=["list"])
 	@trace
 	async def view(
 		self,
