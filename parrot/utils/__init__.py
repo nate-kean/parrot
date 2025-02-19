@@ -12,7 +12,12 @@ from discord.ext import commands
 
 from parrot import config
 from parrot.utils import regex
-from parrot.utils.types import AnyUser, LearnableChannel, SpeakableChannel
+from parrot.utils.types import (
+	AnyChannel,
+	AnyUser,
+	LearnableChannel,
+	SpeakableChannel,
+)
 
 
 class HistoryCrawler:
@@ -142,19 +147,19 @@ def find_text(message: discord.Message) -> str:
 	return " ".join(text)
 
 
-def is_learnable(
-	channel: discord.abc.MessageableChannel
-	| discord.abc.GuildChannel
-	| discord.abc.PrivateChannel,
-) -> TypeGuard[LearnableChannel]:
+def is_learnable(channel: AnyChannel) -> TypeGuard[LearnableChannel]:
+	"""
+	Narrow the type of a channel received from Discord to one that Parrot could
+	learn in.
+	"""
 	return isinstance(channel, discord.TextChannel)
 
 
-def is_speakable(
-	channel: discord.abc.MessageableChannel
-	| discord.abc.GuildChannel
-	| discord.abc.PrivateChannel,
-) -> TypeGuard[SpeakableChannel]:
+def is_speakable(channel: AnyChannel) -> TypeGuard[SpeakableChannel]:
+	"""
+	Narrow the type of a channel received from Discord to one that Parrot could
+	speak in.
+	"""
 	return (
 		isinstance(channel, discord.TextChannel)
 		or isinstance(channel, discord.StageChannel)

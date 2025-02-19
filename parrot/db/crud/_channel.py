@@ -3,7 +3,12 @@ import sqlmodel as sm
 
 import parrot.db.models as p
 from parrot.utils import is_learnable
-from parrot.utils.types import LearnableChannel, Snowflake, SpeakableChannel
+from parrot.utils.types import (
+	AnyChannel,
+	LearnableChannel,
+	Snowflake,
+	SpeakableChannel,
+)
 
 from .types import SubCRUD
 
@@ -34,7 +39,7 @@ class CRUDChannel(SubCRUD):
 		# (including if you create a new row just to set the flag to False)
 		return True
 
-	def can_learn_here(self, channel: discord.abc.MessageableChannel) -> bool:
+	def can_learn_here(self, channel: AnyChannel) -> bool:
 		if not is_learnable(channel):
 			return False
 		statement = sm.select(p.Channel.id).where(
