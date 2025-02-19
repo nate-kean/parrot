@@ -24,12 +24,13 @@ class MarkovModelManager:
 		]()
 
 	async def fetch(self, member: discord.Member) -> markov.ParrotText:
+		self.crud.member.assert_registered(member)
 		key: MarkovModelManager.Key = (member.id, member.guild.id)
-		if member.id in self.cache:
-			logging.debug(f"Cache hit: {member.name}")
-			self.cache.move_to_end(member.id)
+		if key in self.cache:
+			logging.debug(f"Cache hit: {key}")
+			self.cache.move_to_end(key)
 			return self.cache[key]
-		logging.debug(f"Cache miss: {member.id}")
+		logging.debug(f"Cache miss: {key}")
 		corpus = self.crud.member.get_messages_content(member)
 		result = await markov.ParrotText.new(corpus)
 		while self.space_used + len(result) > MarkovModelManager.MAX_MEM_SIZE:
@@ -52,7 +53,7 @@ class MarkovModelManager:
 		"""Update a local model in the cache. Does not affect the database."""
 		partial = markov.ParrotText(corpus_update)
 		current = await self.fetch(member)
-		# Returns same type as first element of first argument
+		# Returns same class as first element of first argument
 		updated = cast(markov.ParrotText, markovify.combine((current, partial)))
 		key: MarkovModelManager.Key = (member.id, member.guild.id)
 		self.cache[key] = updated
