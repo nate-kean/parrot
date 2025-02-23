@@ -38,12 +38,12 @@ class Parrot(commands.AutoShardedBot):
 		self.crud = CRUD(self, self._db_session)
 		self.markov_models = MarkovModelManager(self.crud)
 		self.webhooks = WebhookManager()
-		self._autosave.start()
 
 	async def setup_hook(self) -> None:
 		"""Constructor Part 2: Enter Async"""
 		asyncio_atexit.register(self._async__del__, loop=self.loop)
 		self.http_session = aiohttp.ClientSession(loop=self.loop)
+		self._autosave.start()
 		async with asyncio.TaskGroup() as tg:
 			tg.create_task(self.load_extension("jishaku"))
 			tg.create_task(self.load_extension_folder("commands"))
