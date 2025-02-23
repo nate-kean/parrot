@@ -51,8 +51,7 @@ class Registration(commands.Cog):
 				"speak so you can start using Parrot right away."
 			),
 		)
-
-		await ctx.send(embed=embed)
+		await ctx.reply(embed=embed)
 
 	@commands.command(
 		aliases=["disagree", "unaccept", "uninitiate", "uninitate"],
@@ -89,8 +88,7 @@ class Registration(commands.Cog):
 				"will be permanently deleted from Parrot._"
 			),
 		)
-
-		await ctx.send(embed=embed)
+		await ctx.reply(embed=embed)
 
 	@commands.command(
 		aliases=[
@@ -121,14 +119,14 @@ class Registration(commands.Cog):
 			"You are" if who_.id == ctx.author.id else f"{who_.mention} is"
 		)
 		if who_.bot:
-			await ctx.send("✅ Bots do not need to be registered.")
+			await ctx.reply("✅ Bots do not need to be registered.")
 			return
 		if self.bot.crud.member.is_registered(who_):
-			await ctx.send(
+			await ctx.reply(
 				f"✅ {subject_verb} currently registered with Parrot."
 			)
 		else:
-			await ctx.send(
+			await ctx.reply(
 				f"❌ {subject_verb} not currently registered with Parrot."
 			)
 
@@ -140,7 +138,7 @@ class Registration(commands.Cog):
 	@trace
 	async def toggle_random_wawa(self, ctx: commands.Context) -> None:
 		wants = self.bot.crud.user.toggle_random_wawa(ctx.author)
-		await ctx.send(f"✅ Random wawa {'en' if wants else 'dis'}abled")
+		await ctx.reply(f"✅ Random wawa {'en' if wants else 'dis'}abled")
 
 
 async def setup(bot: Parrot) -> None:

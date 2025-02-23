@@ -40,9 +40,9 @@ class Admin(commands.Cog):
 		"""
 		changed = self.bot.crud.channel.set_can_learn_here(channel, True)
 		if changed:
-			await ctx.send(f"✅ Now learning in {channel.mention}.")
+			await ctx.reply(f"✅ Now learning in {channel.mention}.")
 		else:
-			await ctx.send(f"⚠️️ Already learning in {channel.mention}!")
+			await ctx.reply(f"⚠️️ Already learning in {channel.mention}!")
 
 	@channels_group.command(
 		name="remove",
@@ -62,9 +62,9 @@ class Admin(commands.Cog):
 		"""
 		changed = self.bot.crud.channel.set_can_learn_here(channel, False)
 		if changed:
-			await ctx.send(f"❌ No longer learning in {channel.mention}.")
+			await ctx.reply(f"❌ No longer learning in {channel.mention}.")
 		else:
-			await ctx.send(f"⚠️️ Already not learning in {channel.mention}!")
+			await ctx.reply(f"⚠️️ Already not learning in {channel.mention}!")
 
 	@channels_group.command(name="view", aliases=["list"])
 	@trace
@@ -82,12 +82,12 @@ class Admin(commands.Cog):
 		)
 		if guild_id is None:
 			if ctx.guild is None:
-				await ctx.send(failure_message)
+				await ctx.reply(failure_message)
 				return
 			guild_id = ctx.guild.id
 		guild = self.bot.get_guild(guild_id)
 		if guild is None:
-			await ctx.send(failure_message)
+			await ctx.reply(failure_message)
 			return
 
 		ids = self.bot.crud.guild.get_learning_channel_ids(guild)
@@ -96,7 +96,7 @@ class Admin(commands.Cog):
 		embed = ParrotEmbed(title="Parrot is learning from these channels:")
 		if len(channel_mentions) == 0:
 			embed.description = "None"
-			await ctx.send(embed=embed)
+			await ctx.reply(embed=embed)
 			return
 
 		# TODO
@@ -121,14 +121,14 @@ class Admin(commands.Cog):
 	async def prefix_get(self, ctx: commands.Context) -> None:
 		# ctx.guild guaranteed not None because this command group is guild-only
 		prefix = self.bot.crud.guild.get_prefix(cast_not_none(ctx.guild))
-		await ctx.send(f'Parrot\'s imitation prefix is: "{prefix}"')
+		await ctx.reply(f'Parrot\'s imitation prefix is: "{prefix}"')
 
 	@prefix_group.command(name="set")
 	@commands.check(checks.is_admin)
 	@trace
 	async def prefix_set(self, ctx: commands.Context, new_prefix: str) -> None:
 		self.bot.crud.guild.set_prefix(cast_not_none(ctx.guild), new_prefix)
-		await ctx.send(f'✅ Parrot\'s imitation prefix is now: "{new_prefix}"')
+		await ctx.reply(f'✅ Parrot\'s imitation prefix is now: "{new_prefix}"')
 
 	@prefix_group.command(name="reset", aliases=["default"])
 	@commands.check(checks.is_admin)
@@ -136,7 +136,7 @@ class Admin(commands.Cog):
 	async def prefix_reset(self, ctx: commands.Context) -> None:
 		new_prefix = p.GuildMeta.default_imitation_prefix
 		self.bot.crud.guild.set_prefix(cast_not_none(ctx.guild), new_prefix)
-		await ctx.send(
+		await ctx.reply(
 			f'✅ Parrot\'s imitation prefix has been reset to: "{new_prefix}"'
 		)
 
@@ -153,14 +153,14 @@ class Admin(commands.Cog):
 	async def suffix_get(self, ctx: commands.Context) -> None:
 		# ctx.guild guaranteed not None because this command group is guild-only
 		suffix = self.bot.crud.guild.get_suffix(cast_not_none(ctx.guild))
-		await ctx.send(f'Parrot\'s imitation suffix is: "{suffix}"')
+		await ctx.reply(f'Parrot\'s imitation suffix is: "{suffix}"')
 
 	@suffix_group.command(name="set")
 	@commands.check(checks.is_admin)
 	@trace
 	async def suffix_set(self, ctx: commands.Context, new_suffix: str) -> None:
 		self.bot.crud.guild.set_suffix(cast_not_none(ctx.guild), new_suffix)
-		await ctx.send(f'✅ Parrot\'s imitation suffix is now: "{new_suffix}"')
+		await ctx.reply(f'✅ Parrot\'s imitation suffix is now: "{new_suffix}"')
 
 	@suffix_group.command(name="reset", aliases=["default"])
 	@commands.check(checks.is_admin)
@@ -168,7 +168,7 @@ class Admin(commands.Cog):
 	async def suffix_reset(self, ctx: commands.Context) -> None:
 		new_suffix = p.GuildMeta.default_imitation_suffix
 		self.bot.crud.guild.set_suffix(cast_not_none(ctx.guild), new_suffix)
-		await ctx.send(
+		await ctx.reply(
 			f'✅ Parrot\'s imitation suffix has been reset to: "{new_suffix}"'
 		)
 

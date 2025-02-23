@@ -13,7 +13,7 @@ class Miscellaneous(commands.Cog):
 	@trace
 	async def ping(self, ctx: commands.Context) -> None:
 		"""Get the bot's reponse time."""
-		await ctx.send(
+		await ctx.reply(
 			f"NEED PING??? Took **{round(self.bot.latency * 1000, 2)}** ms"
 		)
 
@@ -47,7 +47,7 @@ class Miscellaneous(commands.Cog):
 			icon_url=garlic_os.display_avatar.url,
 		)
 
-		await ctx.send(embed=embed)
+		await ctx.reply(embed=embed)
 
 
 async def setup(bot: Parrot) -> None:

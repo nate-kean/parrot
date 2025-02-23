@@ -37,7 +37,7 @@ class CommandErrorHandler(commands.Cog):
 			description=error_text,
 			color=ParrotEmbed.Color.RED,
 		)
-		await ctx.send(embed=embed, reference=ctx.message)
+		await ctx.reply(embed=embed)
 
 
 async def setup(bot: Parrot) -> None:

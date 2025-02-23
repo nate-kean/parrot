@@ -79,7 +79,7 @@ class Data[**P](commands.Cog):
 			color=ParrotEmbed.Color.GREEN,
 			description="A link to download your data has been DM'd to you.",
 		)
-		await ctx.send(embed=embed_download_ready)
+		await ctx.reply(embed=embed_download_ready)
 
 	@commands.command(aliases=["pfp", "profilepic", "profilepicture"])
 	@commands.cooldown(2, 4, commands.BucketType.user)
@@ -92,7 +92,7 @@ class Data[**P](commands.Cog):
 		if who_ is None:
 			who_ = cast(discord.Member, ctx.author)
 		avatar_url = await self.bot.antiavatars.fetch(who_)
-		await ctx.send(avatar_url)
+		await ctx.reply(avatar_url)
 
 	async def _start_forget(
 		self,
@@ -137,12 +137,8 @@ class Data[**P](commands.Cog):
 			description=confirmation_message_fmt.format(
 				who=tag(who_), confirm_code=confirm_code
 			),
-		)
-		embed.set_footer(
-			text="Action will be automatically canceled in 1 minute."
-		)
-
-		sent_message = await ctx.send(embed=embed, reference=ctx.message)
+		).set_footer(text="Action will be automatically canceled in 1 minute.")
+		sent_message = await ctx.reply(embed=embed)
 
 		# Delete the confirmation after 1 minute.
 		await asyncio.sleep(60)
@@ -174,19 +170,17 @@ class Data[**P](commands.Cog):
 			# Invalidate this confirmation code.
 			del confirmation_store[confirm_code]
 
-			await ctx.send(
-				embed=ParrotEmbed(
-					title=f"Parrot has forgotten {tag(user)}.",
-					color=ParrotEmbed.Color.GRAY,
-					description=(
-						"All of the data that Parrot has collected from this "
-						"user has been deleted."
-					),
+			embed = ParrotEmbed(
+				title=f"Parrot has forgotten {tag(user)}.",
+				color=ParrotEmbed.Color.GRAY,
+				description=(
+					"All of the data that Parrot has collected from this "
+					"user has been deleted."
 				),
-				reference=ctx.message,
 			)
+			await ctx.reply(embed=embed)
 		else:
-			await ctx.send(f"Confirmation code `{confirm_code}` is invalid.")
+			await ctx.reply(f"Confirmation code `{confirm_code}` is invalid.")
 
 	forget = commands.Group()
 
