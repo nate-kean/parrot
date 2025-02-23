@@ -89,37 +89,34 @@ class Quickstart(commands.Cog):
 		try:
 			# Create an embed that will show the status of the Quickstart
 			# operation and DM it to the user who invoked the command.
-			embed = (
-				ParrotEmbed(
-					description=(
-						"**Scanning across Parrot's servers...**\n"
-						"Collected 0 new messages..."
-					)
-				)
-				.set_author(
-					name="Quickstart",
-					icon_url="https://i.gifer.com/ZZ5H.gif",  # Loading spinner
-				)
-				.set_footer(
-					text=f"Scanning for {member.mention}",
-					icon_url=member.display_avatar.url,
+			dm_embed = ParrotEmbed(
+				description=(
+					"**Scanning across Parrot's servers...**\n"
+					"Collected 0 new messages..."
 				)
 			)
+			dm_embed.set_author(
+				name="Quickstart",
+				icon_url="https://i.gifer.com/ZZ5H.gif",  # Loading spinner
+			)
+			dm_embed.set_footer(
+				text=f"Scanning for {member.mention}",
+				icon_url=member.display_avatar.url,
+			)
+			status_message = await ctx.author.send(embed=dm_embed)
+
 			whose = (
 				"your" if ctx.author.id == member.id else f"{member.mention}'s"
 			)
-			status_message = await ctx.author.send(embed=embed)
-			await ctx.send(
-				embed=ParrotEmbed(
-					title="Quickstart is scanning",
-					description=(
-						"Parrot is now scanning this server and learning from "
-						f"{whose} past messages.\nThis could take a few minutes."
-						"\nCheck your DMs to see its progress."
-					),
+			chat_embed = ParrotEmbed(
+				title="Quickstart is scanning",
+				description=(
+					"Parrot is now scanning this server and learning from "
+					f"{whose} past messages.\nThis could take a few minutes."
+					"\nCheck your DMs to see its progress."
 				),
-				reference=ctx.message,
 			)
+			await ctx.reply(embed=chat_embed)
 
 			# Create an iterator representing up to 100,000 messages since the
 			# user joined the server.
@@ -170,25 +167,25 @@ class Quickstart(commands.Cog):
 			# Update the status embed one last time, but DELETE it this time and
 			# post a brand new one so that the user gets a new notification.
 			name = "you" if ctx.author == member else f"{member.mention}"
-			embed = ParrotEmbed(
+			dm_embed = ParrotEmbed(
 				description=(
 					f"**Scan complete.**\nCollected "
 					f"{crawler.num_collected} new messages."
 				)
 			)
-			embed.set_author(name="✅ Quickstart")
-			embed.set_footer(
+			dm_embed.set_author(name="✅ Quickstart")
+			dm_embed.set_footer(
 				text=f"Scanning for {member.mention}",
 				icon_url=member.display_avatar.url,
 			)
 			if crawler.num_collected == 0:
-				embed.description += (
+				dm_embed.description += (
 					# type: ignore  -- embed.description is definitely not None
 					f"\n😕 Couldn't find any messages from {name}."
 				)
-				embed.color = ParrotEmbed.Color.RED.value
+				dm_embed.color = ParrotEmbed.Color.RED.value
 			asyncio.create_task(status_message.delete())
-			asyncio.create_task(ctx.author.send(embed=embed))
+			asyncio.create_task(ctx.author.send(embed=dm_embed))
 		except:  # noqa - we really do want to just catch ANY error
 			self.ongoing_scans.remove(member.id)
 			raise
