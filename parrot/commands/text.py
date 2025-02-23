@@ -61,13 +61,14 @@ class Text(commands.Cog):
 		# the last (usable) message sent in this channel.
 		elif len(input_text) == 0:
 			history = ctx.channel.history(limit=10, before=ctx.message)
-			while len(input_text) == 0:
-				try:
-					input_text += utils.find_text(await history.__anext__())
-				except StopAsyncIteration:
-					raise TextNotFoundError(
-						"😕 Couldn't find a gibberizeable message"
-					)
+			async for message in history:
+				input_text += utils.find_text(message)
+				if len(input_text) > 0:
+					break
+			else:  # input_text still empty
+				raise TextNotFoundError(
+					"😕 Couldn't find a gibberizeable message"
+				)
 
 		try:
 			async with asyncio.timeout(config.modify_text_timeout_seconds):
