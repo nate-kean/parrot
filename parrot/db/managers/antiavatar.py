@@ -83,14 +83,20 @@ class AntiavatarManager:
 		)
 
 		# Record the information to access it later.
-		self.bot.crud.member.set_antiavatar(
-			member,
-			p.AntiavatarCreate(
-				message_id=message.id,
-				url=message.attachments[0].url,
-				original_url=member.display_avatar.url,
-			),
-		)
+		if has_preexisting_antiavatar:
+			antiavatar.message_id = message.id
+			antiavatar.url = message.attachments[0].url
+			antiavatar.original_url = member.display_avatar.url
+			self.bot.crud.member.update_antiavatar(antiavatar)
+		else:
+			self.bot.crud.member.create_antiavatar(
+				member,
+				p.AntiavatarCreate(
+					message_id=message.id,
+					url=message.attachments[0].url,
+					original_url=member.display_avatar.url,
+				),
+			)
 		return message.attachments[0].url
 
 	async def delete_antiavatar_file(self, antiavatar: p.Antiavatar) -> None:
