@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from collections.abc import Iterable
 from typing import cast
@@ -26,14 +27,20 @@ class MarkovModelManager:
 	async def fetch(self, member: discord.Member) -> markov.ParrotText:
 		self.crud.member.assert_registered(member)
 		key: MarkovModelManager.Key = (member.id, member.guild.id)
+		# Fetch this model from the cache if it's there
 		if key in self.cache:
 			logging.debug(f"Cache hit: {key}")
+			# Mark this model as most recently used (and so new last in line to
+			# be evicted)
 			self.cache.move_to_end(key)
 			return self.cache[key]
 		logging.debug(f"Cache miss: {key}")
 		corpus = self.crud.member.get_messages_content(member)
-		result = await markov.ParrotText.new(corpus)
-		while self.space_used + len(result) > MarkovModelManager.MAX_MEM_SIZE:
+		new_model = await markov.ParrotText.new(corpus)
+		# Evict until we have enough space for the new model
+		while (
+			self.space_used + len(new_model) > MarkovModelManager.MAX_MEM_SIZE
+		):
 			evicted: markov.ParrotText = self.cache.popitem(last=False)[1]
 			logging.debug(
 				" ** Full "
@@ -41,9 +48,9 @@ class MarkovModelManager:
 				f"evicting: {evicted} (-{len(evicted)})"
 			)
 			self.space_used -= len(evicted)
-		self.cache[key] = result
-		self.space_used += len(result)
-		return result
+		self.cache[key] = new_model
+		self.space_used += len(new_model)
+		return new_model
 
 	async def update(
 		self,

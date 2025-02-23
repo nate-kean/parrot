@@ -38,26 +38,26 @@ class Parrot(commands.AutoShardedBot):
 		self.crud = CRUD(self, self._db_session)
 		self.markov_models = MarkovModelManager(self.crud)
 		self.webhooks = WebhookManager()
+		self._autosave.start()
 
 	async def setup_hook(self) -> None:
 		"""Constructor Part 2: Enter Async"""
-		# Parrot has to do async stuff as part of its destructor, so it can't
-		# actually use __del__, a method strictly synchronous. So we have to
-		# reinvent a little bit of the wheel and manually set a function to run
-		# when Parrot is about to be destroyed -- except slightly earlier, while
-		# the event loop is still up.
 		asyncio_atexit.register(self._async__del__, loop=self.loop)
-
 		self.http_session = aiohttp.ClientSession(loop=self.loop)
-		self._autosave.start()
 		async with asyncio.TaskGroup() as tg:
 			tg.create_task(self.load_extension("jishaku"))
 			tg.create_task(self.load_extension_folder("commands"))
 			tg.create_task(self.load_extension_folder("cogs"))
-
 		self.antiavatars = await AntiavatarManager.new(self)
 
 	async def _async__del__(self) -> None:
+		"""
+		Parrot has to do async stuff as part of its destructor, so it can't
+		actually use __del__, a method strictly synchronous. So we have to
+		reinvent a little bit of the wheel and manually set a function to run
+		when Parrot is about to be destroyed -- except slightly earlier, while
+		the event loop is still up.
+		"""
 		logging.info("Parrot shutting down...")
 		self._db_session.close()
 		self._autosave.cancel()
