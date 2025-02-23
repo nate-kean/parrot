@@ -21,11 +21,12 @@ type Check = Callable[
 
 
 class BaseUserlike(commands.Converter):
-	def __init__(self):
-		self._checks: list[Check] = []
+	_checks: list[Check] = []
 
 	async def convert(
-		self, ctx: commands.Context, argument: str
+		self,
+		ctx: commands.Context,
+		argument: str,
 	) -> discord.Member:
 		argument = argument.lower()
 
@@ -61,17 +62,17 @@ class Userlike(BaseUserlike):
 		- The string "me" or "myself", which resolves to the context's author
 	"""
 
-	def __init__(self):
-		super().__init__()
-		self._checks.append(self._me)
-
+	@staticmethod
 	async def _me(
-		self, ctx: commands.Context, text: str | None
+		ctx: commands.Context,
+		text: str | None,
 	) -> discord.Member | None:
 		if text in ("me", "myself"):
 			# guaranteed Member and not User because that is already asserted
 			# in BaseUserlike.convert()
 			return cast(discord.Member, ctx.author)
+
+	_checks = [_me]
 
 
 class Memberlike(Userlike):
@@ -87,13 +88,9 @@ class Memberlike(Userlike):
 			enabled in Parrot's config.
 	"""
 
-	def __init__(self):
-		super().__init__()
-		self._checks.append(self._you)
-		self._checks.append(self._someone)
-
+	@staticmethod
 	async def _you(
-		self, ctx: commands.Context[Parrot], text: str | None
+		ctx: commands.Context[Parrot], text: str | None
 	) -> discord.Member | None:
 		"""Get the author of the last message send in the channel who isn't
 		Parrot or the person who sent this command."""
@@ -114,8 +111,9 @@ class Memberlike(Userlike):
 				# separately.
 				return await ctx.guild.fetch_member(message.author.id)
 
+	@staticmethod
 	async def _someone(
-		self, ctx: commands.Context[Parrot], text: str | None
+		ctx: commands.Context[Parrot], text: str | None
 	) -> discord.Member | None:
 		"""Choose a random registered user in this channel."""
 		if text not in ("someone", "somebody", "anyone", "anybody"):
@@ -134,3 +132,5 @@ class Memberlike(Userlike):
 			)
 		member_id = random.choice(registered_member_ids_here)
 		return await ctx.guild.fetch_member(member_id)
+
+	_checks = [_you, _someone]
