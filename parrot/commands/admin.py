@@ -2,15 +2,7 @@ from discord.ext import commands
 
 import parrot.db.models as p
 from parrot.bot import Parrot
-
-# from parrot.utils import Paginator, ParrotEmbed, cast_not_none, checks, tag
-from parrot.utils import (
-	ParrotEmbed,
-	cast_not_none,
-	checks,
-	send_help,
-	trace,
-)
+from parrot.utils import ParrotEmbed, cast_not_none, checks, trace
 from parrot.utils.types import LearnableChannel
 
 
@@ -19,27 +11,24 @@ class Admin(commands.Cog):
 		self.bot = bot
 
 	@commands.group(
-		aliases=["channels", "learning"],
-		invoke_without_command=True,
+		name="channels",
+		aliases=["channel", "learning"],
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	async def channel(
-		self,
-		ctx: commands.Context,
-		action: str | None = None,
-		channel: LearnableChannel | None = None,
-	) -> None:
+	@trace
+	async def channels_group(self, ctx: commands.Context) -> None:
 		"""Manage Parrot's learning permissions for this server."""
-		if action is None:
-			await send_help(ctx)
+		if ctx.invoked_subcommand is None:
+			await self.channels_view(ctx)
 
-	@channel.command(
+	@channels_group.command(
+		name="add",
 		aliases=["enable"],
 		brief="Let Parrot learn in a new channel.",
 	)
 	@commands.check(checks.is_admin)
 	@trace
-	async def add(
+	async def channels_add(
 		self,
 		ctx: commands.Context,
 		channel: LearnableChannel,
@@ -55,13 +44,14 @@ class Admin(commands.Cog):
 		else:
 			await ctx.send(f"⚠️️ Already learning in {channel.mention}!")
 
-	@channel.command(
+	@channels_group.command(
+		name="remove",
 		aliases=["disable", "delete"],
 		brief="Remove Parrot's learning permission in a channel.",
 	)
 	@commands.check(checks.is_admin)
 	@trace
-	async def remove(
+	async def channels_remove(
 		self,
 		ctx: commands.Context,
 		channel: LearnableChannel,
@@ -76,9 +66,9 @@ class Admin(commands.Cog):
 		else:
 			await ctx.send(f"⚠️️ Already not learning in {channel.mention}!")
 
-	@channel.command(aliases=["list"])
+	@channels_group.command(name="view", aliases=["list"])
 	@trace
-	async def view(
+	async def channels_view(
 		self,
 		ctx: commands.Context,
 		guild_id: int | None = None,
@@ -117,82 +107,69 @@ class Admin(commands.Cog):
 		# )
 		# await paginator.run()
 
-	@commands.group(invoke_without_command=True)
+	@commands.group(name="prefix")
 	@commands.guild_only()
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	async def prefix(
-		self,
-		ctx: commands.Context,
-		action: str | None = None,
-		new_prefix: str | None = None,
-	) -> None:
+	@trace
+	async def prefix_group(self, ctx: commands.Context) -> None:
 		"""Manage Parrot's imitation prefix for this server."""
-		if action is not None and action != "get":
-			await send_help(ctx)
-			return
-		await self.prefix_get(ctx)
+		if ctx.invoked_subcommand is None:
+			await self.prefix_get(ctx)
 
-	@prefix.command()
+	@prefix_group.command(name="get")
 	@trace
 	async def prefix_get(self, ctx: commands.Context) -> None:
 		# ctx.guild guaranteed not None because this command group is guild-only
 		prefix = self.bot.crud.guild.get_prefix(cast_not_none(ctx.guild))
-		await ctx.send(f"Parrot's imitation prefix is: `{prefix}`")
+		await ctx.send(f'Parrot\'s imitation prefix is: "{prefix}"')
 
-	@prefix.command()
+	@prefix_group.command(name="set")
 	@commands.check(checks.is_admin)
 	@trace
 	async def prefix_set(self, ctx: commands.Context, new_prefix: str) -> None:
 		self.bot.crud.guild.set_prefix(cast_not_none(ctx.guild), new_prefix)
-		await ctx.send(f"✅ Parrot's imitation prefix is now: `{new_prefix}`")
+		await ctx.send(f'✅ Parrot\'s imitation prefix is now: "{new_prefix}"')
 
-	@prefix.command(aliases=["reset", "default"])
+	@prefix_group.command(name="reset", aliases=["default"])
 	@commands.check(checks.is_admin)
 	@trace
-	async def prefix_clear(self, ctx: commands.Context) -> None:
+	async def prefix_reset(self, ctx: commands.Context) -> None:
 		new_prefix = p.GuildMeta.default_imitation_prefix
 		self.bot.crud.guild.set_prefix(cast_not_none(ctx.guild), new_prefix)
 		await ctx.send(
-			f"✅ Parrot's imitation prefix has been reset to: `{new_prefix}`"
+			f'✅ Parrot\'s imitation prefix has been reset to: "{new_prefix}"'
 		)
 
-	@commands.group(invoke_without_command=True)
+	@commands.group(name="suffix")
 	@commands.guild_only()
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	async def suffix(
-		self,
-		ctx: commands.Context,
-		action: str | None = None,
-		new_suffix: str | None = None,
-	) -> None:
+	async def suffix_group(self, ctx: commands.Context) -> None:
 		"""Manage Parrot's imitation suffix for this server."""
-		if action is not None and action != "get":
-			await send_help(ctx)
-			return
-		await self.suffix_get(ctx)
+		if ctx.invoked_subcommand is None:
+			await self.suffix_get(ctx)
 
-	@suffix.command()
+	@suffix_group.command(name="get")
 	@trace
 	async def suffix_get(self, ctx: commands.Context) -> None:
 		# ctx.guild guaranteed not None because this command group is guild-only
 		suffix = self.bot.crud.guild.get_suffix(cast_not_none(ctx.guild))
-		await ctx.send(f"Parrot's imitation suffix is: `{suffix}`")
+		await ctx.send(f'Parrot\'s imitation suffix is: "{suffix}"')
 
-	@suffix.command()
+	@suffix_group.command(name="set")
 	@commands.check(checks.is_admin)
 	@trace
 	async def suffix_set(self, ctx: commands.Context, new_suffix: str) -> None:
 		self.bot.crud.guild.set_suffix(cast_not_none(ctx.guild), new_suffix)
-		await ctx.send(f"✅ Parrot's imitation suffix is now: `{new_suffix}`")
+		await ctx.send(f'✅ Parrot\'s imitation suffix is now: "{new_suffix}"')
 
-	@suffix.command(aliases=["reset", "default"])
+	@suffix_group.command(name="reset", aliases=["default"])
 	@commands.check(checks.is_admin)
 	@trace
-	async def suffix_clear(self, ctx: commands.Context) -> None:
+	async def suffix_reset(self, ctx: commands.Context) -> None:
 		new_suffix = p.GuildMeta.default_imitation_suffix
 		self.bot.crud.guild.set_suffix(cast_not_none(ctx.guild), new_suffix)
 		await ctx.send(
-			f"✅ Parrot's imitation suffix has been reset to: `{new_suffix}`"
+			f'✅ Parrot\'s imitation suffix has been reset to: "{new_suffix}"'
 		)
 
 

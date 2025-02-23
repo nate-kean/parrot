@@ -188,18 +188,9 @@ class Data[**P](commands.Cog):
 		else:
 			await ctx.send(f"Confirmation code `{confirm_code}` is invalid.")
 
-	@commands.group(invoke_without_command=True)
-	async def forget(
-		self,
-		ctx: commands.Context,
-		who: str | None = None,
-		*args: P.args,
-		**kwargs: P.kwargs,
-	) -> None:
-		if who is None:
-			await send_help(ctx)
+	forget = commands.Group()
 
-	@forget.group()
+	@forget.group(name="everywhere")
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@trace
 	async def forget_everywhere(
@@ -237,7 +228,7 @@ class Data[**P](commands.Cog):
 			confirm_code,
 		)
 
-	@forget.group()
+	@forget.group(name="here")
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@commands.guild_only()
 	@trace
