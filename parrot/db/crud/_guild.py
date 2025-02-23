@@ -28,9 +28,11 @@ class CRUDGuild(SubCRUD):
 		statement = sm.select(p.Guild.imitation_prefix).where(
 			p.Guild.id == guild.id
 		)
+		prefix = self.session.exec(statement).first()
 		return (
-			self.session.exec(statement).first()
-			or p.GuildMeta.default_imitation_prefix
+			prefix
+			if prefix is not None
+			else p.GuildMeta.default_imitation_prefix
 		)
 
 	def set_prefix(self, guild: discord.Guild, new_prefix: str) -> None:
@@ -44,9 +46,11 @@ class CRUDGuild(SubCRUD):
 		statement = sm.select(p.Guild.imitation_suffix).where(
 			p.Guild.id == guild.id
 		)
+		suffix = self.session.exec(statement).first()
 		return (
-			self.session.exec(statement).first()
-			or p.GuildMeta.default_imitation_suffix
+			suffix
+			if suffix is not None
+			else p.GuildMeta.default_imitation_suffix
 		)
 
 	def set_suffix(self, guild: discord.Guild, new_suffix: str) -> None:
