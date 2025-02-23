@@ -58,8 +58,11 @@ class MarkovModelManager:
 		corpus_update: Iterable[str],
 	) -> None:
 		"""Update a local model in the cache. Does not affect the database."""
-		partial = markov.ParrotText(corpus_update)
-		current = await self.fetch(member)
+		async with asyncio.TaskGroup() as tg:
+			task_partial = tg.create_task(markov.ParrotText.new(corpus_update))
+			task_current = tg.create_task(self.fetch(member))
+		partial = task_partial.result()
+		current = task_current.result()
 		# Returns same class as first element of first argument
 		updated = cast(markov.ParrotText, markovify.combine((current, partial)))
 		key: MarkovModelManager.Key = (member.id, member.guild.id)
