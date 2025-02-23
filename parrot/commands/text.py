@@ -74,7 +74,7 @@ class Text(commands.Cog):
 				# TODO: timeout actually cancels this, right?
 				text = await modifier(input_text)
 		except TimeoutError:
-			text = ""
+			text = "Error"
 		await ctx.send(text[:2000])
 
 	@staticmethod
