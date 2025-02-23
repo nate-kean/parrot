@@ -31,9 +31,6 @@ class Text(commands.Cog):
 		STANDARD = auto()
 		INTIMIDATE = auto()
 
-	def __init__(self, bot: Parrot):
-		self.bot = bot
-
 	@staticmethod
 	async def _modify_text(
 		ctx: commands.Context,
@@ -80,14 +77,14 @@ class Text(commands.Cog):
 			text = ""
 		await ctx.send(text[:2000])
 
+	@staticmethod
 	async def _imitate_impl(
-		self,
 		ctx: commands.Context,
 		member: discord.Member,
 		mode: ImitateMode = ImitateMode.STANDARD,
 	) -> None:
 		# Parrot can't imitate itself!
-		if member.id == cast_not_none(self.bot.user).id:
+		if member.id == cast_not_none(ctx.bot.user).id:
 			# Send the funny XOK message instead, that'll show 'em.
 			embed = ParrotEmbed(
 				title="Error",
@@ -102,16 +99,16 @@ class Text(commands.Cog):
 			return
 
 		# Fetch this user's model.
-		model = await self.bot.markov_models.fetch(member)
+		model = await ctx.bot.markov_models.fetch(member)
 		sentence = model.make_short_sentence(500) or "Error"
 
 		prefix = (
-			self.bot.crud.guild.get_prefix(ctx.guild)
+			ctx.bot.crud.guild.get_prefix(ctx.guild)
 			if ctx.guild is not None
 			else ""
 		)
 		suffix = (
-			self.bot.crud.guild.get_suffix(ctx.guild)
+			ctx.bot.crud.guild.get_suffix(ctx.guild)
 			if ctx.guild is not None
 			else ""
 		)
@@ -127,13 +124,13 @@ class Text(commands.Cog):
 		# faster than those of a bot/user account, which is crucial for
 		# being able to imitate lots of users quickly.
 		try:
-			avatar_url = await self.bot.antiavatars.fetch(member)
+			avatar_url = await ctx.bot.antiavatars.fetch(member)
 		except Exception as error:
 			logging.error(utils.error2traceback(error))
 			avatar_url = member.display_avatar.url
 
 		webhook = (
-			await self.bot.webhooks.fetch(ctx)
+			await ctx.bot.webhooks.fetch(ctx)
 			if is_speakable(ctx.channel)
 			else None
 		)
@@ -195,4 +192,4 @@ class Text(commands.Cog):
 
 
 async def setup(bot: Parrot) -> None:
-	await bot.add_cog(Text(bot))
+	await bot.add_cog(Text())
