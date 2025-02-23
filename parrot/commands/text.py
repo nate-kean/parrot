@@ -80,6 +80,7 @@ class Text(commands.Cog):
 	@staticmethod
 	async def _imitate_impl(
 		ctx: commands.Context[Parrot],
+		*,
 		member: discord.Member,
 		mode: ImitateMode = ImitateMode.STANDARD,
 	) -> None:
@@ -155,7 +156,11 @@ class Text(commands.Cog):
 	async def imitate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""Imitate someone."""
 		logging.info(f"Imitating {user}")
-		await self._imitate_impl(ctx, cast(discord.Member, user))
+		await self._imitate_impl(
+			ctx,
+			member=cast(discord.Member, user),
+			mode=Text.ImitateMode.STANDARD,
+		)
 
 	@commands.command(brief="IMITATE SOMEONE.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
@@ -164,7 +169,9 @@ class Text(commands.Cog):
 		"""IMITATE SOMEONE."""
 		logging.info(f"Intimidating {user}")
 		await self._imitate_impl(
-			ctx, cast(discord.Member, user), mode=Text.ImitateMode.INTIMIDATE
+			ctx,
+			member=cast(discord.Member, user),
+			mode=Text.ImitateMode.INTIMIDATE,
 		)
 
 	@commands.command(
