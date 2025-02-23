@@ -79,7 +79,7 @@ class Text(commands.Cog):
 
 	@staticmethod
 	async def _imitate_impl(
-		ctx: commands.Context,
+		ctx: commands.Context[Parrot],
 		member: discord.Member,
 		mode: ImitateMode = ImitateMode.STANDARD,
 	) -> None:
