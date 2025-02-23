@@ -139,11 +139,10 @@ class Text(commands.Cog):
 		)
 		if webhook is None:
 			# Fall back to using an embed if Parrot couldn't get a webhook.
-			await ctx.send(
-				embed=ParrotEmbed(
-					description=sentence,
-				).set_author(name=name, icon_url=avatar_url)
-			)
+			embed = ParrotEmbed(
+				description=sentence,
+			).set_author(name=name, icon_url=avatar_url)
+			await ctx.send(embed=embed)
 			return
 		# Send the sentence through the webhook.
 		await webhook.send(
