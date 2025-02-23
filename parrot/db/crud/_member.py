@@ -47,17 +47,18 @@ class CRUDMember(SubCRUD):
 		"""
 		Get the text content of every message this user has said in this guild.
 		"""
-		self.assert_registered(member)
+		# self.assert_registered(member)
 		statement = sm.select(p.Message.content).where(
 			p.Message.author_id == member.id,
 			# DEBUG
+			# TODO: remove
 			# p.Message.guild_id == member.guild.id,
 			p.Message.guild_id == 280298381807714304,
 		)
 		return self.session.exec(statement).all()
 
 	def get_antiavatar(self, member: discord.Member) -> p.Antiavatar | None:
-		self.assert_registered(member)
+		# self.assert_registered(member)
 		statement = sm.select(p.Antiavatar).where(
 			p.Antiavatar.guild_id == member.guild.id,
 			p.Antiavatar.user_id == member.id,
