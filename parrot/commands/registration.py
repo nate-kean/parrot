@@ -121,13 +121,11 @@ class Registration(commands.Cog):
 		if who.bot:
 			await ctx.reply("✅ Bots do not need to be registered.")
 			return
-			await ctx.reply(
-				f"✅ {subject_verb} currently registered with Parrot."
-			)
 		if self.bot.crud.member.is_registered(who):
+			await ctx.reply(f"✅ {user_is} currently registered with Parrot.")
 		else:
 			await ctx.reply(
-				f"❌ {subject_verb} not currently registered with Parrot."
+				f"❌ {user_is} not currently registered with Parrot."
 			)
 
 	@commands.command(
