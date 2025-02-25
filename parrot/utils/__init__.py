@@ -194,6 +194,18 @@ def trace_format_command_origin(ctx: commands.Context) -> str:
 	return result
 
 
+def trace_format_args(args: tuple) -> str:
+	result = str(args[2:])
+	if len(args) - 2 == 1:
+		result = result[:-2] + result[-1]
+	return result
+
+
+def trace_format_kwargs(kwargs: dict) -> str:
+	# TODO: make this prettier
+	return str(kwargs)
+
+
 def trace[**P, Ret](
 	fn: Callable[P, Coroutine[Any, Any, Ret]],
 ) -> Callable[P, Coroutine[Any, Any, Ret]]:
@@ -201,9 +213,12 @@ def trace[**P, Ret](
 	async def decorated(*args: P.args, **kwargs: P.kwargs) -> Ret:
 		if len(args) >= 2 and isinstance(args[0], commands.Cog):
 			ctx = cast(commands.Context, args[1])
+			command_origin = trace_format_command_origin(ctx)
+			args_str = trace_format_args(args)
+			kwargs_str = trace_format_kwargs(kwargs)
 			logging.info(
-				f"{trace_format_command_origin(ctx)}: "
-				f"{args[0].__cog_name__}.{fn.__name__} {kwargs}"
+				f"{command_origin}: "
+				f"{args[0].__cog_name__}.{fn.__name__} {args_str} {kwargs_str}"
 			)
 		else:
 			logging.info(fn.__name__, *args, **kwargs)
