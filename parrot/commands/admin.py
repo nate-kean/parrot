@@ -13,13 +13,13 @@ class Admin(commands.Cog):
 	@commands.group(
 		name="channels",
 		aliases=["channel", "learning"],
+		invoke_without_command=True,
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@trace
 	async def channels_group(self, ctx: commands.Context) -> None:
 		"""Manage Parrot's learning permissions for this server."""
-		if ctx.invoked_subcommand is None:
-			await self.channels_view(ctx)
+		await self.channels_view(ctx)
 
 	@channels_group.command(
 		name="add",
@@ -107,14 +107,13 @@ class Admin(commands.Cog):
 		# )
 		# await paginator.run()
 
-	@commands.group(name="prefix")
+	@commands.group(name="prefix", invoke_without_command=True)
 	@commands.guild_only()
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@trace
 	async def prefix_group(self, ctx: commands.Context) -> None:
 		"""Manage Parrot's imitation prefix for this server."""
-		if ctx.invoked_subcommand is None:
-			await self.prefix_get(ctx)
+		await self.prefix_get(ctx)
 
 	@prefix_group.command(name="get")
 	@trace
@@ -140,13 +139,12 @@ class Admin(commands.Cog):
 			f'✅ Parrot\'s imitation prefix has been reset to: "{new_prefix}"'
 		)
 
-	@commands.group(name="suffix")
+	@commands.group(name="suffix", invoke_without_command=True)
 	@commands.guild_only()
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	async def suffix_group(self, ctx: commands.Context) -> None:
 		"""Manage Parrot's imitation suffix for this server."""
-		if ctx.invoked_subcommand is None:
-			await self.suffix_get(ctx)
+		await self.suffix_get(ctx)
 
 	@suffix_group.command(name="get")
 	@trace
