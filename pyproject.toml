@@ -8,7 +8,6 @@ dependencies = [
     "aiohttp>=3.11.10",
     "alembic>=1.14.1",
     "asyncio-atexit>=1.0.1",
-    "audioop-lts>=0.2.1",
     "discord-py>=2.4.0",
     "jishaku>=2.6.0",
     "markovify>=0.9.4",
