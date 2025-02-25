@@ -21,18 +21,18 @@ class Registration(commands.Cog):
 	@commands.guild_only()
 	@trace
 	async def register(
-		self, ctx: commands.Context, who: Userlike | None = None
+		self,
+		ctx: commands.Context,
+		who: Userlike | None = None,
 	) -> None:
 		"""Register to let Parrot imitate you."""
-		# Pylance doesn't get along with `commands.Converter`s
-		who_ = cast(discord.Member | None, who)
-		if who_ is None:
-			who_ = cast(discord.Member, ctx.author)
-		elif who_.id != ctx.author.id:
+		if who is None:
+			who = cast(discord.Member, ctx.author)
+		elif who.id != ctx.author.id:
 			raise UserPermissionError("You can only register yourself.")
 
 		# Update the "is_registered" field on this user in the database.
-		self.bot.crud.member.set_registered(who_, True)
+		self.bot.crud.member.set_registered(who, True)
 
 		embed = ParrotEmbed(
 			title="✅ Registered!",
@@ -61,20 +61,21 @@ class Registration(commands.Cog):
 	@commands.guild_only()
 	@trace
 	async def unregister(
-		self, ctx: commands.Context, who: Userlike | None = None
+		self,
+		ctx: commands.Context,
+		who: Userlike | None = None,
 	) -> None:
 		"""
 		Remove your registration from Parrot.
 		Parrot will stop collecting your messages and will not be able to
 		imitate you until you register again.
 		"""
-		who_ = cast(discord.Member | None, who)
-		if who_ is None:
-			who_ = cast(discord.Member, ctx.author)
-		elif who_.id != ctx.author.id:
+		if who is None:
+			who = cast(discord.Member, ctx.author)
+		elif who.id != ctx.author.id:
 			raise UserPermissionError("You can only unregister yourself.")
 
-		self.bot.crud.member.set_registered(who_, False)
+		self.bot.crud.member.set_registered(who, False)
 
 		embed = ParrotEmbed(
 			title="Unregistered!",
@@ -105,26 +106,25 @@ class Registration(commands.Cog):
 	@commands.guild_only()
 	@trace
 	async def status(
-		self, ctx: commands.Context, who: Userlike | None = None
+		self,
+		ctx: commands.Context,
+		who: Userlike | None = None,
 	) -> None:
 		"""
 		Check if you're registered with Parrot.
 		You need to be registered for Parrot to be able to analyze your messages
 		and imitate you.
 		"""
-		who_ = cast(discord.Member | None, who)
-		if who_ is None:
-			who_ = cast(discord.Member, ctx.author)
-		subject_verb = (
-			"You are" if who_.id == ctx.author.id else f"{who_.mention} is"
-		)
-		if who_.bot:
+		if who is None:
+			who = cast(discord.Member, ctx.author)
+		user_is = "You are" if who.id == ctx.author.id else f"{who.mention} is"
+		if who.bot:
 			await ctx.reply("✅ Bots do not need to be registered.")
 			return
-		if self.bot.crud.member.is_registered(who_):
 			await ctx.reply(
 				f"✅ {subject_verb} currently registered with Parrot."
 			)
+		if self.bot.crud.member.is_registered(who):
 		else:
 			await ctx.reply(
 				f"❌ {subject_verb} not currently registered with Parrot."

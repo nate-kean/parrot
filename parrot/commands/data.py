@@ -85,13 +85,14 @@ class Data[**P](commands.Cog):
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@trace
 	async def avatar(
-		self, ctx: commands.Context, who: Memberlike | None = None
+		self,
+		ctx: commands.Context,
+		who: Memberlike | None = None,
 	) -> None:
 		"""Show your Imitate Clone's avatar."""
-		who_ = cast(discord.Member | None, who)
-		if who_ is None:
-			who_ = cast(discord.Member, ctx.author)
-		avatar_url = await self.bot.antiavatars.fetch(who_)
+		if who is None:
+			who = cast(discord.Member, ctx.author)
+		avatar_url = await self.bot.antiavatars.fetch(who)
 		await ctx.reply(avatar_url)
 
 	async def _start_forget(
@@ -115,20 +116,20 @@ class Data[**P](commands.Cog):
 		else:
 			who_ = ctx.author
 
-		if who_ != ctx.author and not checks.is_admin(ctx) and not who_.bot:
+		if who != ctx.author and not checks.is_admin(ctx) and not who.bot:
 			raise UserPermissionError(
 				"You are not allowed to make Parrot forget other users."
 			)
 
-		if not self.bot.crud.user.exists(who_):
-			raise NoDataError(f"No data available for user {tag(who_)}.")
+		if not self.bot.crud.user.exists(who):
+			raise NoDataError(f"No data available for user {tag(who)}.")
 
 		confirm_code = ctx.message.id
 
 		# Keep track of this confirmation while it's still pending.
 		confirmation_store[confirm_code] = Data.Confirmation(
 			requestor=ctx.author,
-			subject_user=who_,
+			subject_user=who,
 		)
 
 		embed = ParrotEmbed(

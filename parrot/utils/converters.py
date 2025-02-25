@@ -1,6 +1,6 @@
 import random
 from collections.abc import Awaitable, Callable
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import discord
 from discord.errors import NotFound
@@ -13,6 +13,7 @@ from parrot.utils.exceptions import (
 	ChannelTypeError,
 	UserNotFoundError,
 )
+from parrot.utils.types import Snowflake
 
 
 type Check = Callable[
@@ -20,40 +21,68 @@ type Check = Callable[
 ]
 
 
-class BaseUserlike(commands.Converter):
-	_checks: list[Check] = []
+__all__ = ["Userlike", "Memberlike"]
 
+
+# HACK: to make the type checker accept my commands.Converters as the type they
+# convert to.
+# For arguments annotated as a converters.Converter, discord.py actually gives
+# you a value whose type is the return type of that converter's .convert().
+# So, e.g., if you type annotate an argument as a Userlike, it will actually
+# come in as a discord.Member.
+if TYPE_CHECKING:
+	type Userlike = _Userlike | discord.Member
+	type Memberlike = _Memberlike | discord.Member
+
+	class ParrotConverter(commands.Converter, discord.Member): ...
+else:
+	# strip off the disguise at runtime
+	# or rather... leave nothing but the disguise?
+	type Userlike = _Userlike
+	type Memberlike = _Memberlike
+
+	class ParrotConverter(commands.Converter): ...
+
+
+class BaseUserlike(ParrotConverter):
 	async def convert(
 		self,
 		ctx: commands.Context,
-		argument: str,
+		argument: str | None,
 	) -> discord.Member:
-		argument = argument.lower()
-
 		for check in self._checks:
 			result = await check(ctx, argument)
 			if result is not None:
 				return result
+		raise UserNotFoundError.Username(argument or "<None>")
 
-		# If this is not a guild, it must be a DM channel, and therefore the
-		# only person you can imitate is yourself.
+	@staticmethod
+	async def _id(
+		ctx: commands.Context,
+		text: str | None,
+	) -> discord.Member | None:
+		if text is None:
+			return cast(discord.Member, ctx.author)
+
 		if ctx.guild is None:
-			raise UserNotFoundError.Username(argument)
+			return None
 
 		# Strip the mention down to an ID.
 		try:
-			member_id = int(regex.snowflake.sub("", argument))
+			member_id = Snowflake(regex.snowflake.sub("", text.lower()))
 		except ValueError:
-			raise UserNotFoundError.Username(argument)
+			return None
 
 		# Fetch the member by ID.
 		try:
 			return await ctx.guild.fetch_member(member_id)
 		except NotFound:
-			raise UserNotFoundError.Username(argument)
+			return None
+
+	_checks: list[Check] = [_id]
 
 
-class Userlike(BaseUserlike):
+class _Userlike(BaseUserlike):
 	"""
 	A string that can resolve to a Member.
 	Works with:
@@ -72,10 +101,10 @@ class Userlike(BaseUserlike):
 			# in BaseUserlike.convert()
 			return cast(discord.Member, ctx.author)
 
-	_checks = [_me]
+	_checks = BaseUserlike._checks + [_me]
 
 
-class Memberlike(Userlike):
+class _Memberlike(_Userlike):
 	"""
 	A string that can resolve to a Member -- plus novelty options!
 	Works with:
@@ -133,4 +162,4 @@ class Memberlike(Userlike):
 		member_id = random.choice(registered_member_ids_here)
 		return await ctx.guild.fetch_member(member_id)
 
-	_checks = [_you, _someone]
+	_checks = _Userlike._checks + [_you, _someone]
