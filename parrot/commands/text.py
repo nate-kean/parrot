@@ -14,13 +14,14 @@ from parrot.utils import (
 	cast_not_none,
 	discord_caps,
 	is_speakable,
-	trace,
 	weasel,
 )
 from parrot.utils.converters import Memberlike
 from parrot.utils.exceptions import TextNotFoundError
+from parrot.utils.trace import trace
 
 
+@trace
 class Text(commands.Cog):
 	class ImitateMode(Enum):
 		"""
@@ -153,7 +154,6 @@ class Text(commands.Cog):
 
 	@commands.command(aliases=["be"], brief="Imitate someone.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
-	@trace
 	async def imitate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""Imitate someone."""
 		logging.info(f"Imitating {user}")
@@ -165,7 +165,6 @@ class Text(commands.Cog):
 
 	@commands.command(brief="IMITATE SOMEONE.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
-	@trace
 	async def intimidate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""IMITATE SOMEONE."""
 		logging.info(f"Intimidating {user}")
@@ -180,7 +179,6 @@ class Text(commands.Cog):
 		brief="Gibberize a sentence.",
 	)
 	@commands.cooldown(2, 2, commands.BucketType.user)
-	@trace
 	async def gibberish(self, ctx: commands.Context, *, text: str = "") -> None:
 		"""Turn text into gibberish."""
 		await Text._modify_text(ctx, input_text=text, modifier=weasel.gibberish)

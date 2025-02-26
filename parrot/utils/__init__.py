@@ -1,6 +1,5 @@
 import asyncio
 import functools
-import logging
 import traceback
 from collections import OrderedDict
 from collections.abc import AsyncIterator, Callable, Coroutine
@@ -8,7 +7,6 @@ from enum import Enum
 from typing import Any, TypeGuard, cast
 
 import discord
-from discord.ext import commands
 
 from parrot import config
 from parrot.utils import regex
@@ -182,46 +180,3 @@ def tag(user: AnyUser) -> str:
 	if user.discriminator != "0":
 		return f"@{user.name}#{user.discriminator}"
 	return f"@{user.name}"
-
-
-def trace_format_command_origin(ctx: commands.Context) -> str:
-	result = ""
-	if ctx.guild is not None:
-		result += f"{ctx.guild.name} - "
-	if isinstance(ctx.channel, discord.TextChannel):
-		result += f"#{ctx.channel.name} - "
-	result += tag(ctx.author)
-	return result
-
-
-def trace_format_args(args: tuple) -> str:
-	result = str(args[2:])
-	if len(args) - 2 == 1:
-		result = result[:-2] + result[-1]
-	return result
-
-
-def trace_format_kwargs(kwargs: dict) -> str:
-	# TODO: make this prettier
-	return str(kwargs)
-
-
-def trace[**P, Ret](
-	fn: Callable[P, Coroutine[Any, Any, Ret]],
-) -> Callable[P, Coroutine[Any, Any, Ret]]:
-	@functools.wraps(fn)
-	async def decorated(*args: P.args, **kwargs: P.kwargs) -> Ret:
-		if len(args) >= 2 and isinstance(args[0], commands.Cog):
-			ctx = cast(commands.Context, args[1])
-			command_origin = trace_format_command_origin(ctx)
-			args_str = trace_format_args(args)
-			kwargs_str = trace_format_kwargs(kwargs)
-			logging.info(
-				f"{command_origin}: "
-				f"{args[0].__cog_name__}.{fn.__name__} {args_str} {kwargs_str}"
-			)
-		else:
-			logging.info(fn.__name__, *args, **kwargs)
-		return await fn(*args, **kwargs)
-
-	return decorated

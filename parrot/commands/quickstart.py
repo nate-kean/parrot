@@ -13,9 +13,11 @@ from parrot.utils.exceptions import (
 	ChannelTypeError,
 	UserPermissionError,
 )
+from parrot.utils.trace import trace
 from parrot.utils.types import AnyUser, Snowflake
 
 
+@trace
 class Quickstart(commands.Cog):
 	def __init__(self, bot: Parrot):
 		self.bot = bot

@@ -1,16 +1,17 @@
 from discord.ext import commands
 
 from parrot.bot import Parrot
-from parrot.utils import ParrotEmbed, cast_not_none, tag, trace
+from parrot.utils import ParrotEmbed, cast_not_none, tag
+from parrot.utils.trace import trace
 
 
+@trace
 class Miscellaneous(commands.Cog):
 	def __init__(self, bot: Parrot):
 		self.bot = bot
 
 	@commands.command()
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	@trace
 	async def ping(self, ctx: commands.Context) -> None:
 		"""Get the bot's reponse time."""
 		await ctx.reply(
@@ -21,7 +22,6 @@ class Miscellaneous(commands.Cog):
 		aliases=["about", "bio", "code", "github", "source", "sourcecode"]
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	@trace
 	async def info(self, ctx: commands.Context) -> None:
 		"""Get info about Parrot."""
 		garlic_os = await self.bot.fetch_user(206235904644349953)

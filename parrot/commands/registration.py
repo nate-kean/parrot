@@ -4,11 +4,13 @@ import discord
 from discord.ext import commands
 
 from parrot.bot import Parrot
-from parrot.utils import ParrotEmbed, trace
+from parrot.utils import ParrotEmbed
 from parrot.utils.converters import Userlike
 from parrot.utils.exceptions import UserPermissionError
+from parrot.utils.trace import trace
 
 
+@trace
 class Registration(commands.Cog):
 	def __init__(self, bot: Parrot):
 		self.bot = bot
@@ -19,7 +21,6 @@ class Registration(commands.Cog):
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@commands.guild_only()
-	@trace
 	async def register(
 		self,
 		ctx: commands.Context,
@@ -59,7 +60,6 @@ class Registration(commands.Cog):
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@commands.guild_only()
-	@trace
 	async def unregister(
 		self,
 		ctx: commands.Context,
@@ -104,7 +104,6 @@ class Registration(commands.Cog):
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@commands.guild_only()
-	@trace
 	async def status(
 		self,
 		ctx: commands.Context,
@@ -115,8 +114,7 @@ class Registration(commands.Cog):
 		You need to be registered for Parrot to be able to analyze your messages
 		and imitate you.
 		"""
-		if who is None:
-			who = cast(discord.Member, ctx.author)
+		who = who or cast(discord.Member, ctx.author)
 		user_is = "You are" if who.id == ctx.author.id else f"{who.mention} is"
 		if who.bot:
 			await ctx.reply("✅ Bots do not need to be registered.")
@@ -133,7 +131,6 @@ class Registration(commands.Cog):
 		brief="Un/block Parrot from randomly doing |wawa on you.",
 	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	@trace
 	async def toggle_random_wawa(self, ctx: commands.Context) -> None:
 		wants = self.bot.crud.user.toggle_random_wawa(ctx.author)
 		await ctx.reply(f"✅ Random wawa {'en' if wants else 'dis'}abled")

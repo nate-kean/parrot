@@ -4,11 +4,13 @@ from typing import Any
 import sqlmodel as sm
 
 import parrot.db.models as p
+from parrot.utils.trace import trace
 from parrot.utils.types import AnyUser
 
 from .types import SubCRUD
 
 
+@trace
 class CRUDUser(SubCRUD):
 	"""Methods on Users that are Guild-agnostic
 

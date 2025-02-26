@@ -5,11 +5,7 @@ import discord
 from discord import Forbidden, HTTPException, NotFound
 from discord.ext import commands
 
-from parrot.utils import (
-	cast_not_none,
-	is_speakable,
-	trace_format_command_origin,
-)
+from parrot.utils import cast_not_none, is_speakable, trace
 
 
 if TYPE_CHECKING:
@@ -48,7 +44,7 @@ class WebhookManager:
 			)
 			ctx.bot.crud.channel.set_webhook_id(ctx.channel, webhook)
 			logging.info(
-				f"{trace_format_command_origin(ctx)}: Created new webhook"
+				f"{trace.format_command_origin(ctx)}: Created new webhook"
 			)
 			return webhook
 		except (Forbidden, HTTPException, AttributeError):

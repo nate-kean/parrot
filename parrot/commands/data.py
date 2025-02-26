@@ -15,7 +15,6 @@ from parrot.utils import (
 	checks,
 	send_help,
 	tag,
-	trace,
 )
 from parrot.utils.converters import Memberlike, Userlike
 from parrot.utils.exceptions import (
@@ -23,6 +22,7 @@ from parrot.utils.exceptions import (
 	UserNotFoundError,
 	UserPermissionError,
 )
+from parrot.utils.trace import trace
 from parrot.utils.types import Snowflake
 
 
@@ -33,6 +33,7 @@ type ConfirmationStore = dict[Snowflake, Data.Confirmation]
 
 
 class Data[**P](commands.Cog):
+@trace
 	"""Do things w/ ur data"""
 
 	@dataclass
@@ -47,7 +48,6 @@ class Data[**P](commands.Cog):
 
 	@commands.command(aliases=["checkout", "data"])
 	@commands.cooldown(2, 3600, commands.BucketType.user)
-	@trace
 	async def download(self, ctx: commands.Context) -> None:
 		"""Download a copy of your data."""
 		user = ctx.author
@@ -83,15 +83,13 @@ class Data[**P](commands.Cog):
 
 	@commands.command(aliases=["pfp", "profilepic", "profilepicture"])
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	@trace
 	async def avatar(
 		self,
 		ctx: commands.Context,
 		who: Memberlike | None = None,
 	) -> None:
 		"""Show your Imitate Clone's avatar."""
-		if who is None:
-			who = cast(discord.Member, ctx.author)
+		who = who or cast(discord.Member, ctx.author)
 		avatar_url = await self.bot.antiavatars.fetch(who)
 		await ctx.reply(avatar_url)
 
@@ -187,7 +185,6 @@ class Data[**P](commands.Cog):
 
 	@forget.group(name="everywhere")
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	@trace
 	async def forget_everywhere(
 		self,
 		ctx: commands.Context,
@@ -211,7 +208,6 @@ class Data[**P](commands.Cog):
 		)
 
 	@forget_everywhere.command(name="confirm", hidden=True)
-	@trace
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	async def forget_everywhere_confirm(
 		self, ctx: commands.Context, confirm_code: int
@@ -226,7 +222,6 @@ class Data[**P](commands.Cog):
 	@forget.group(name="here")
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@commands.guild_only()
-	@trace
 	async def forget_here(
 		self,
 		ctx: commands.Context,
@@ -253,7 +248,6 @@ class Data[**P](commands.Cog):
 	@forget_here.command(name="confirm", hidden=True)
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	@commands.guild_only()
-	@trace
 	async def forget_here_confirm(
 		self, ctx: commands.Context, confirm_code: int
 	) -> None:

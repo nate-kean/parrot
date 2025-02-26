@@ -6,10 +6,12 @@ import sqlmodel as sm
 
 import parrot.db.models as p
 from parrot.utils.exceptions import NotRegisteredError
+from parrot.utils.trace import trace
 
 from .types import SubCRUD
 
 
+@trace
 class CRUDMember(SubCRUD):
 	"""
 	Actions on users in the context of a guild.
