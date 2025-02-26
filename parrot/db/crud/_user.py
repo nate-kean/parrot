@@ -77,3 +77,9 @@ class CRUDUser(SubCRUD):
 		# Delete all their information in the database
 		self.session.delete(db_user)
 		return True
+
+	def size(self, member: AnyUser) -> int:
+		statement = sm.select(sm.func.count(sm.col(p.Message.id))).where(
+			p.Message.author_id == member.id
+		)
+		return self.session.exec(statement).first() or 0

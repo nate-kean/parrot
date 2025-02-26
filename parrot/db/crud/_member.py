@@ -113,3 +113,10 @@ class CRUDMember(SubCRUD):
 			return False
 		await self.raw_delete_membership(membership)
 		return True
+
+	def size(self, member: discord.Member) -> int:
+		statement = sm.select(sm.func.count(sm.col(p.Message.id))).where(
+			p.Message.author_id == member.id,
+			p.Message.guild_id == member.guild.id,
+		)
+		return self.session.exec(statement).first() or 0
