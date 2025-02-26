@@ -166,16 +166,6 @@ def is_speakable(channel: AnyChannel) -> TypeGuard[SpeakableChannel]:
 	)
 
 
-async def send_help(ctx: commands.Context) -> None:
-	# "type: ignore" for "expected 1 more positional argument"
-	# discord.py itself had to do this too:
-	# https://github.com/Rapptz/discord.py/blob/4e03b17/discord/ext/commands/core.py#L588-L590
-	await cast_not_none(ctx.bot.get_command("help")).callback(
-		ctx,
-		command=cast_not_none(ctx.command.qualified_name),  # type: ignore
-	)
-
-
 def tag(user: AnyUser) -> str:
 	if user.discriminator != "0":
 		return f"@{user.name}#{user.discriminator}"
