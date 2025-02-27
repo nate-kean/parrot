@@ -6,8 +6,9 @@ Create Date: 2025-01-21 14:46:13.725138
 
 """
 
-import logging
 from collections.abc import Sequence
+
+from parrot.config import logger
 
 from alembic import op
 
@@ -33,7 +34,7 @@ def upgrade() -> None:
 				op.f("fk_messages_user_id_users"), type_="foreignkey"
 			)
 	except ValueError as exc:
-		logging.warning(exc)
+		logger.warning(exc)
 	with op.batch_alter_table("message") as bop:
 		bop.create_foreign_key(
 			None, "user", ["author_id"], ["id"], ondelete="CASCADE"

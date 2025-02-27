@@ -9,11 +9,11 @@ Create Date: 2025-02-14 18:23:12.984593
 
 """
 
-import logging
 from collections.abc import Sequence
 
 import sqlmodel as sm
 from parrot.alembic.common import cleanup_models, count
+from parrot.config import logger
 
 from alembic import op
 
@@ -29,7 +29,7 @@ def upgrade() -> None:
 	from parrot.alembic.models import r7d0ffe4179c6
 
 	session = sm.Session(op.get_bind())
-	logging.info(
+	logger.info(
 		f"Initial message count: {count(session, r7d0ffe4179c6.Message.id)}"
 	)
 	session.execute(
@@ -43,7 +43,7 @@ def upgrade() -> None:
 			)
 		""")
 	)
-	logging.info(
+	logger.info(
 		f"New message count: {count(session, r7d0ffe4179c6.Message.id)}"
 	)
 	session.commit()
@@ -51,4 +51,4 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-	logging.warning("No action taken: this migration is irreversible.")
+	logger.warning("No action taken: this migration is irreversible.")

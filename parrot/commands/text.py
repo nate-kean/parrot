@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from collections.abc import Callable, Coroutine
 from enum import Enum, auto
 from typing import Any, cast
@@ -9,6 +8,7 @@ from discord.ext import commands
 
 from parrot import config, utils
 from parrot.bot import Parrot
+from parrot.config import logger
 from parrot.utils import (
 	ParrotEmbed,
 	cast_not_none,
@@ -130,7 +130,7 @@ class Text(commands.Cog):
 		try:
 			avatar_url = await ctx.bot.antiavatars.fetch(member)
 		except Exception as error:
-			logging.error(utils.error2traceback(error))
+			logger.error(utils.error2traceback(error))
 			avatar_url = member.display_avatar.url
 
 		webhook = (
@@ -158,7 +158,7 @@ class Text(commands.Cog):
 	@slow
 	async def imitate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""Imitate someone."""
-		logging.info(f"Imitating {user}")
+		logger.info(f"Imitating {user}")
 		await self._imitate_impl(
 			ctx,
 			member=cast(discord.Member, user),
@@ -170,7 +170,7 @@ class Text(commands.Cog):
 	@slow
 	async def intimidate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""IMITATE SOMEONE."""
-		logging.info(f"Intimidating {user}")
+		logger.info(f"Intimidating {user}")
 		await self._imitate_impl(
 			ctx,
 			member=cast(discord.Member, user),

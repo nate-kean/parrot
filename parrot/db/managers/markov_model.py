@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from collections.abc import Iterable
 from typing import cast
 
@@ -7,6 +6,7 @@ import discord
 import markovify
 
 from parrot import config
+from parrot.config import logger
 from parrot.db.crud import CRUD
 from parrot.utils import LastUpdatedOrderedDict, markov
 from parrot.utils.types import Snowflake
@@ -29,12 +29,12 @@ class MarkovModelManager:
 		key: MarkovModelManager.Key = (member.id, member.guild.id)
 		# Fetch this model from the cache if it's there
 		if key in self.cache:
-			logging.debug(f"Cache hit: {key}")
+			logger.debug(f"Cache hit: {key}")
 			# Mark this model as most recently used (and so new last in line to
 			# be evicted)
 			self.cache.move_to_end(key)
 			return self.cache[key]
-		logging.debug(f"Cache miss: {key}")
+		logger.debug(f"Cache miss: {key}")
 		corpus = self.crud.member.get_messages_content(member)
 		new_model = await markov.ParrotText.new(corpus)
 		# Evict until we have enough space for the new model
@@ -42,7 +42,7 @@ class MarkovModelManager:
 			self.space_used + len(new_model) > MarkovModelManager.MAX_MEM_SIZE
 		):
 			evicted: markov.ParrotText = self.cache.popitem(last=False)[1]
-			logging.debug(
+			logger.debug(
 				" ** Full "
 				f"({self.space_used}/{MarkovModelManager.MAX_MEM_SIZE}); "
 				f"evicting: {evicted} (-{len(evicted)})"

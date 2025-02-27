@@ -1,4 +1,3 @@
-import logging
 import random
 import traceback
 
@@ -7,6 +6,7 @@ from discord.ext.commands.errors import CommandError, CommandNotFound
 
 import parrot.assets
 from parrot.bot import Parrot
+from parrot.config import logger
 from parrot.utils import ParrotEmbed
 
 
@@ -25,7 +25,7 @@ class CommandErrorHandler(commands.Cog):
 		else:
 			# Log all other kinds of errors (REAL errors)
 			error_text = str(error)
-			logging.error(
+			logger.error(
 				"\n".join(
 					traceback.format_exception(None, error, error.__traceback__)
 				)

@@ -1,8 +1,7 @@
-import logging
-
 from discord.ext import commands
 
 from parrot.bot import Parrot
+from parrot.config import logger
 from parrot.utils import tag
 
 
@@ -20,12 +19,12 @@ class ReadyHandler(commands.Cog):
 	async def on_ready(self) -> None:
 		"""on_ready fires when the bot (re)gains connection."""
 		if self.bot.user is None:
-			logging.error("Invalid `on_ready` state: `self.user` is None")
+			logger.error("Invalid `on_ready` state: `self.user` is None")
 			return
 		if self.initialized:
-			logging.info("Logged back in.")
+			logger.info("Logged back in.")
 			return
-		logging.info(f"Logged in as {tag(self.bot.user)}")
+		logger.info(f"Logged in as {tag(self.bot.user)}")
 		self.initialized = True
 
 

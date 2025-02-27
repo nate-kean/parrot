@@ -1,10 +1,10 @@
-import logging
 from typing import TYPE_CHECKING
 
 import discord
 from discord import Forbidden, HTTPException, NotFound
 from discord.ext import commands
 
+from parrot.config import logger
 from parrot.utils import cast_not_none, is_speakable, trace
 
 
@@ -43,7 +43,7 @@ class WebhookManager:
 				reason="Automatically created by Parrot",
 			)
 			ctx.bot.crud.channel.set_webhook_id(ctx.channel, webhook)
-			logging.info(
+			logger.info(
 				f"{trace.format_command_origin(ctx)}: Created new webhook"
 			)
 			return webhook

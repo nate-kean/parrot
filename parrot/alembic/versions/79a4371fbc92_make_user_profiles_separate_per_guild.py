@@ -14,7 +14,6 @@ Create Date: 2025-01-21 14:43:16.104103
 
 """
 
-import logging
 from collections.abc import Sequence
 
 import discord
@@ -22,6 +21,7 @@ import sqlalchemy as sa
 import sqlmodel as sm
 from parrot import config
 from parrot.alembic.common import cleanup_models
+from parrot.config import logger
 from parrot.utils.types import Snowflake
 from tqdm import tqdm
 
@@ -55,14 +55,14 @@ def upgrade() -> None:
 
 	@client.event
 	async def on_ready() -> None:
-		logging.info("Scraping Discord to populate guild IDs...")
+		logger.info("Scraping Discord to populate guild IDs...")
 		members_found: set[Snowflake] = set()
 		for guild in tqdm(client.guilds, desc="Guilds processed"):
 			async for member in guild.fetch_members(limit=None):
 				for db_user in db_users:
 					if db_user.id != member.id:
 						continue
-					# logging.debug(
+					# logger.debug(
 					# 	f"User {db_user.id} is a member of guild {guild.id}"
 					# )
 					db_guild = session.get(
@@ -78,7 +78,7 @@ def upgrade() -> None:
 					break
 		for db_user in db_users:
 			if db_user.id not in members_found:
-				logging.warning(f"No guilds found for user {db_user.id}")
+				logger.warning(f"No guilds found for user {db_user.id}")
 		session.commit()
 		await client.close()
 

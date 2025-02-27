@@ -1,9 +1,8 @@
-import logging
-
 import discord
 from discord.ext import commands
 
 from parrot.bot import Parrot
+from parrot.config import logger
 from parrot.utils import is_learnable
 
 
@@ -30,7 +29,7 @@ class Reflect(commands.Cog):
 			]
 		except KeyError:
 			pass
-		logging.info(
+		logger.info(
 			f"Forgot message with ID {event.message_id} because it was deleted "
 			"from Discord."
 		)

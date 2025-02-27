@@ -11,11 +11,11 @@ Create Date: 2025-01-24 23:38:55.172176
 
 """
 
-import logging
 from collections.abc import Sequence
 
 import sqlmodel as sm
 from parrot.alembic.common import cleanup_models, count
+from parrot.config import logger
 
 from alembic import op
 
@@ -31,7 +31,7 @@ def upgrade() -> None:
 	from parrot.alembic.models import v1
 
 	session = sm.Session(op.get_bind())
-	logging.info(f"Initial message count: {count(session, v1.Messages.id)}")
+	logger.info(f"Initial message count: {count(session, v1.Messages.id)}")
 	session.execute(
 		sm.text("""
 			DELETE FROM messages
@@ -43,10 +43,10 @@ def upgrade() -> None:
 			)
 		""")
 	)
-	logging.info(f"New message count: {count(session, v1.Messages.id)}")
+	logger.info(f"New message count: {count(session, v1.Messages.id)}")
 	session.commit()
 	cleanup_models(v1)
 
 
 def downgrade() -> None:
-	logging.warning("No action taken: this migration is irreversible.")
+	logger.warning("No action taken: this migration is irreversible.")

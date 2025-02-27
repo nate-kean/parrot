@@ -11,7 +11,6 @@ Create Date: 2025-01-21 14:40:18.601522
 
 """
 
-import logging
 from collections.abc import Sequence
 
 import discord
@@ -22,6 +21,7 @@ from parrot.alembic.common import (
 	AddChannelAndMessageGuildIDFactory,
 	cleanup_models,
 )
+from parrot.config import logger
 from parrot.utils import is_learnable
 from parrot.utils.types import LearnableChannel
 from tqdm import tqdm
@@ -102,20 +102,20 @@ def upgrade() -> None:
 			try:
 				channel = await client.fetch_channel(db_channel.id)
 			except Exception as exc:
-				logging.warning(
+				logger.warning(
 					f"Failed to fetch channel {db_channel.id}: {exc}"
 				)
 				db_channel.guild_id = ErrorCode.REQUEST_FAILED.value
 				session.add(db_channel)
 				continue
 			if not is_learnable(channel):
-				logging.warning(
+				logger.warning(
 					f"Invalid channel type: {db_channel.id} is {type(channel)}"
 				)
 				db_channel.guild_id = ErrorCode.INVALID_TYPE.value
 				session.add(db_channel)
 				continue
-			logging.debug(
+			logger.debug(
 				f"Channel {db_channel.id} in guild {db_channel.guild_id}"
 			)
 			db_channel.guild_id = channel.guild.id
@@ -127,14 +127,14 @@ def upgrade() -> None:
 
 	@client.event
 	async def on_ready() -> None:
-		logging.info("Scraping Discord to populate guild IDs...")
+		logger.info("Scraping Discord to populate guild IDs...")
 		try:
 			channels = await process_channels()
 			await processor.process_messages(channels)
 			processor.retrying = True
 			await processor.process_messages(channels)
 		except Exception as exc:
-			logging.error(exc)
+			logger.error(exc)
 		session.commit()
 		await client.close()
 
@@ -158,7 +158,7 @@ def downgrade() -> None:
 			)
 			bop.drop_index(op.f("ix_guild_id_author_id"))
 	except ValueError as exc:
-		logging.warning(exc)
+		logger.warning(exc)
 	with op.batch_alter_table("channel") as bop:
 		bop.drop_column("guild_id")
 

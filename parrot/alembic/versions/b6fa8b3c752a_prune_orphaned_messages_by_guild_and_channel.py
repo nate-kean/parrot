@@ -12,11 +12,11 @@ Create Date: 2025-01-24 23:38:55.172176
 
 """
 
-import logging
 from collections.abc import Sequence
 
 import sqlmodel as sm
 from parrot.alembic.common import cleanup_models, count
+from parrot.config import logger
 
 from alembic import op
 
@@ -33,7 +33,7 @@ def upgrade() -> None:
 	from parrot.alembic.models.r7d0ffe4179c6 import ErrorCode
 
 	session = sm.Session(op.get_bind())
-	logging.info(
+	logger.info(
 		f"Initial message count: {count(session, r7d0ffe4179c6.Message.id)}"
 	)
 	session.execute(
@@ -46,7 +46,7 @@ def upgrade() -> None:
 			"channel_id": ErrorCode.NOT_FOUND.value,
 		},
 	)
-	logging.info(
+	logger.info(
 		f"New message count: {count(session, r7d0ffe4179c6.Message.id)}"
 	)
 	session.commit()
@@ -55,4 +55,4 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-	logging.warning("No action taken: this migration is irreversible.")
+	logger.warning("No action taken: this migration is irreversible.")

@@ -1,10 +1,9 @@
-import logging
-
 from parrot.bot import Parrot
+from parrot.config import logger
 
 
 def main() -> None:
-	logging.info("Initializing bot...")
+	logger.info("Initializing bot...")
 	bot = Parrot()
 	bot.go()
 

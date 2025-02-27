@@ -1,9 +1,9 @@
-import logging
 from types import ModuleType
 from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 import sqlalchemy as sa
 import sqlmodel as sm
+from parrot.config import logger
 from parrot.utils.types import LearnableChannel
 from tqdm import tqdm
 
@@ -116,7 +116,7 @@ class AddChannelAndMessageGuildIDFactory:
 		except KeyboardInterrupt:
 			raise
 		except Exception as exc:
-			logging.warning(
+			logger.warning(
 				"Request for messages after"
 				f"{channel.guild.id}/{channel.id}/{candidate.id} "
 				f"failed: {exc}"
@@ -141,7 +141,7 @@ class AddChannelAndMessageGuildIDFactory:
 			for message in messages:
 				if db_message.id != message.id:
 					continue
-				# logging.debug(
+				# logger.debug(
 				# 	f"Message {db_message.id} in guild/channel "
 				# 	f"{db_message.guild_id}/{db_message.channel_id}"
 				# )
@@ -209,7 +209,7 @@ class AddChannelAndMessageGuildIDFactory:
 					# Mark it processed, otherwise we may get stuck with the
 					# database selecting the same unprocessable message over and
 					# over.
-					logging.debug(
+					logger.debug(
 						f"Message {candidate.id} not found in learning channels"
 					)
 					candidate.guild_id = self.m.ErrorCode.NOT_FOUND.value

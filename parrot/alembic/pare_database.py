@@ -3,13 +3,12 @@ Take Parrot's real database and remove a certain proportion of its messages.
 For testing on a smaller version of the real database.
 """
 
-import logging
-
 import sqlmodel as sm
 from parrot import config
 from parrot.alembic import prepare_for_migration
 from parrot.alembic.common import count
 from parrot.alembic.models import v1
+from parrot.config import logger
 
 
 V1_REVISION = "fe3138aef0bd"
@@ -24,8 +23,8 @@ def main() -> None:
 	sm.SQLModel.metadata.create_all(engine)
 	session = sm.Session(engine)
 
-	logging.info("Paring message table")
-	logging.info(f"Initial message count: {count(session, v1.Messages.id)}")
+	logger.info("Paring message table")
+	logger.info(f"Initial message count: {count(session, v1.Messages.id)}")
 	session.execute(
 		sm.text("""
 			DELETE FROM messages WHERE id IN (
@@ -40,7 +39,7 @@ def main() -> None:
 		{"factor": PARING_FACTOR},
 	)
 
-	logging.info(f"New message count: {count(session, v1.Messages.id)}")
+	logger.info(f"New message count: {count(session, v1.Messages.id)}")
 
 
 if __name__ == "__main__":

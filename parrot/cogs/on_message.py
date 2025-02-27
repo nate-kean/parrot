@@ -1,4 +1,3 @@
-import logging
 import random
 
 import discord
@@ -6,6 +5,7 @@ from discord.ext import commands
 
 from parrot import config, utils
 from parrot.bot import Parrot
+from parrot.config import logger
 from parrot.utils import cast_not_none, is_learnable, tag, weasel
 from parrot.utils.exceptions import NotRegisteredError
 
@@ -27,7 +27,7 @@ class MessageHandler(commands.Cog):
 			try:
 				recorded = self.bot.crud.message.record(message)
 				if len(recorded) > 0:
-					logging.info(
+					logger.info(
 						f"Collected a message (ID: {message.id}) from user "
 						f"{tag(message.author)} (ID: {message.author.id})"
 					)

@@ -1,6 +1,5 @@
 import functools
 import inspect
-import logging
 import types
 from collections.abc import Callable, Coroutine
 from typing import Any, ParamSpec, TypeGuard, TypeVar, cast
@@ -8,6 +7,7 @@ from typing import Any, ParamSpec, TypeGuard, TypeVar, cast
 import discord
 from discord.ext import commands
 
+from parrot.config import logger
 from parrot.utils import tag
 
 
@@ -56,13 +56,13 @@ def _do_trace(fn: Callable[P, Any], *args: P.args, **kwargs: P.kwargs) -> None:
 		ctx = cast(commands.Context, args[1])
 		command_origin = format_command_origin(ctx)
 		args_str = format_args(args[2:])
-		logging.debug(
+		logger.debug(
 			f"{command_origin}: "
 			f"{args[0].__cog_name__}.{fn.__name__} {args_str} {kwargs_str}"
 		)
 	else:
 		args_str = format_args(args[1:])
-		logging.debug(f"{fn.__module__}.{fn.__name__} {args_str} {kwargs_str}")
+		logger.debug(f"{fn.__module__}.{fn.__name__} {args_str} {kwargs_str}")
 
 
 def _trace_fn_async(fn: AsyncFunction) -> AsyncFunction:

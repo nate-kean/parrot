@@ -5,7 +5,6 @@ MIT License
 Copyright (c) 2019 crimso, williammck
 """
 
-import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from io import BytesIO
@@ -15,6 +14,7 @@ import aiohttp
 from PIL import Image, ImageOps, ImageSequence
 
 from parrot import config
+from parrot.config import logger
 from parrot.utils import executor_function, tag
 from parrot.utils.types import AnyUser
 
@@ -159,7 +159,7 @@ async def create_antiavatar_file(user: AnyUser) -> AntiavatarFile:
 				"GIF too long; need to process only first frame"
 			)
 		else:
-			logging.info(
+			logger.info(
 				f"Processing GIF avatar for {tag(user)}... ",
 				f"{img.width} \u2a09 {img.height} pixels · {n_frames} frames",
 			)
@@ -178,7 +178,7 @@ async def create_antiavatar_file(user: AnyUser) -> AntiavatarFile:
 		buffer = await process_lower_level(img, resize_img, scale)
 		n_bytes = buffer.getbuffer().nbytes
 
-	logging.info(f"Generated new antiavatar for {tag(user)}")
+	logger.info(f"Generated new antiavatar for {tag(user)}")
 	return AntiavatarFile(
 		buffer=buffer, ext=img.format if img.format is not None else "png"
 	)

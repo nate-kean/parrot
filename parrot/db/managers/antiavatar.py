@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import urllib.parse
 from pathlib import Path
 from typing import TYPE_CHECKING, Self
@@ -8,6 +7,7 @@ import discord
 
 import parrot.db.models as p
 from parrot import config
+from parrot.config import logger
 from parrot.utils import image
 
 
@@ -104,7 +104,7 @@ class AntiavatarManager:
 		try:
 			message = await self.avatar_channel.fetch_message(message_id)
 		except discord.NotFound:
-			logging.warning(
+			logger.warning(
 				f"Tried to delete message {message_id} from the avatar store, "
 				"but it doesn't exist."
 			)

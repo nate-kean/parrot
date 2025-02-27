@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from pathlib import Path
 
 import aiohttp
@@ -9,6 +8,7 @@ import sqlmodel as sm
 from discord.ext import commands, tasks
 
 from parrot import config
+from parrot.config import logger
 from parrot.db.crud import CRUD
 from parrot.db.managers.antiavatar import AntiavatarManager
 from parrot.db.managers.markov_model import MarkovModelManager
@@ -17,7 +17,7 @@ from parrot.db.managers.webhook import WebhookManager
 
 class Parrot(commands.AutoShardedBot):
 	def __init__(self):
-		logging.info(f"discord.py {discord.__version__}")
+		logger.info(f"discord.py {discord.__version__}")
 
 		intents = discord.Intents.default()
 		intents.message_content = True
@@ -58,7 +58,7 @@ class Parrot(commands.AutoShardedBot):
 		when Parrot is about to be destroyed -- except slightly earlier, while
 		the event loop is still up.
 		"""
-		logging.info("Parrot shutting down...")
+		logger.info("Parrot shutting down...")
 		self._db_session.close()
 		self._autosave.cancel()
 		await self.close()  # Log out of Discord
@@ -74,20 +74,20 @@ class Parrot(commands.AutoShardedBot):
 					continue
 				fqn = f"parrot.{path}.{entry.stem}"
 				try:
-					logging.info(f"Loading {fqn}... ")
+					logger.info(f"Loading {fqn}... ")
 					tg.create_task(self.load_extension(fqn))
-					logging.info("✅")
+					logger.info("✅")
 				except Exception as error:
-					logging.info("❌")
-					logging.error(f"{error}\n")
+					logger.info("❌")
+					logger.error(f"{error}\n")
 
 	@tasks.loop(seconds=config.autosave_interval_seconds)
 	async def _autosave(self) -> None:
 		"""Commit the database on a timer.
 		Far more performant than committing on every query."""
-		logging.info("Saving to database...")
+		logger.info("Saving to database...")
 		self._db_session.commit()
-		logging.info("Save complete.")
+		logger.info("Save complete.")
 
 	def go(self) -> None:
 		"""The next logical step after `start` and `run`"""

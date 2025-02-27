@@ -1,5 +1,3 @@
-import logging
-
 import discord
 import sqlmodel as sm
 from parrot import config
@@ -7,6 +5,7 @@ from parrot.alembic.common import (
 	AddChannelAndMessageGuildIDFactory,
 	cleanup_models,
 )
+from parrot.config import logger
 from parrot.utils import is_learnable
 from parrot.utils.types import LearnableChannel
 from tqdm import tqdm
@@ -34,20 +33,20 @@ def main() -> None:
 			try:
 				channel = await client.fetch_channel(db_channel.id)
 			except Exception as exc:
-				logging.warning(
+				logger.warning(
 					f"Failed to fetch channel {db_channel.id}: {exc}"
 				)
 				db_channel.guild_id = ErrorCode.REQUEST_FAILED.value
 				session.add(db_channel)
 				continue
 			if not is_learnable(channel):
-				logging.warning(
+				logger.warning(
 					f"Invalid channel type: {db_channel.id} is {type(channel)}"
 				)
 				db_channel.guild_id = ErrorCode.INVALID_TYPE.value
 				session.add(db_channel)
 				continue
-			logging.debug(
+			logger.debug(
 				f"Channel {db_channel.id} in guild {db_channel.guild_id}"
 			)
 			db_channel.guild_id = channel.guild.id
@@ -59,13 +58,13 @@ def main() -> None:
 
 	@client.event
 	async def on_ready() -> None:
-		logging.info("Scraping Discord retry failed message requests...")
+		logger.info("Scraping Discord retry failed message requests...")
 		try:
 			channels = await process_channels()
 			processor.retrying = True
 			await processor.process_messages(channels)
 		except Exception as exc:
-			logging.error(exc)
+			logger.error(exc)
 		session.commit()
 		await client.close()
 

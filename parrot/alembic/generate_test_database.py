@@ -3,7 +3,6 @@ Generate a database on the v1 schema that contains a subset of Parrot's real
 data. Made to make sure data makes it through the migrations in one piece.
 """
 
-import logging
 import os
 import subprocess
 import textwrap
@@ -12,6 +11,7 @@ from collections.abc import Generator
 import sqlmodel as sm
 from parrot import config
 from parrot.alembic.models import v1
+from parrot.config import logger
 from parrot.utils.types import Snowflake
 
 
@@ -68,7 +68,7 @@ def main() -> None:
 	sm.SQLModel.metadata.create_all(engine)
 	session = sm.Session(engine)
 
-	logging.info("Injecting test data")
+	logger.info("Injecting test data")
 
 	for row in to_matrix(RAW_MESSAGES):
 		try:
