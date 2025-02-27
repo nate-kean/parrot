@@ -14,6 +14,7 @@ from parrot.utils import (
 	cast_not_none,
 	discord_caps,
 	is_speakable,
+	slow,
 	weasel,
 )
 from parrot.utils.converters import Memberlike
@@ -154,6 +155,7 @@ class Text(commands.Cog):
 
 	@commands.command(aliases=["be"], brief="Imitate someone.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
+	@slow
 	async def imitate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""Imitate someone."""
 		logging.info(f"Imitating {user}")
@@ -165,6 +167,7 @@ class Text(commands.Cog):
 
 	@commands.command(brief="IMITATE SOMEONE.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
+	@slow
 	async def intimidate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""IMITATE SOMEONE."""
 		logging.info(f"Intimidating {user}")

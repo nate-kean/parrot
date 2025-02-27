@@ -4,9 +4,10 @@ import traceback
 from collections import OrderedDict
 from collections.abc import AsyncIterator, Callable, Coroutine
 from enum import Enum
-from typing import Any, TypeGuard, cast
+from typing import Any, Concatenate, TypeGuard, cast
 
 import discord
+from discord.ext import commands
 
 from parrot import config
 from parrot.utils import regex
@@ -164,6 +165,36 @@ def is_speakable(channel: AnyChannel) -> TypeGuard[SpeakableChannel]:
 		or isinstance(channel, discord.Thread)
 		or isinstance(channel, discord.VoiceChannel)
 	)
+
+
+def slow[Self_: object, **P](
+	fn: Callable[
+		Concatenate[Self_, commands.Context[commands.Bot], P],
+		Coroutine[Any, Any, None],
+	],
+) -> Callable[
+	Concatenate[Self_, commands.Context[commands.Bot], P],
+	Coroutine[Any, Any, None],
+]:
+	"""
+	Decorator: start the typing indicator if a command takes too long to run.
+	"""
+
+	@functools.wraps(fn)
+	async def decorated(
+		self: Self_,
+		ctx: commands.Context[commands.Bot],
+		*args: P.args,
+		**kwargs: P.kwargs,
+	) -> None:
+		task = asyncio.create_task(fn(self, ctx, *args, **kwargs))
+		_, pending = await asyncio.wait([task], timeout=1)
+		if len(pending) == 0:
+			return
+		async with ctx.typing():
+			await pending.pop()
+
+	return decorated
 
 
 def tag(user: AnyUser) -> str:

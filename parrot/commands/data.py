@@ -13,6 +13,7 @@ from parrot.utils import (
 	ParrotEmbed,
 	cast_not_none,
 	checks,
+	slow,
 	tag,
 )
 from parrot.utils.converters import Memberlike, Userlike
@@ -268,6 +269,7 @@ class Data(commands.Cog):
 
 	@commands.command(aliases=["localsize", "sizehere"])
 	@commands.guild_only()
+	@slow
 	async def size(
 		self,
 		ctx: commands.Context,
@@ -284,6 +286,7 @@ class Data(commands.Cog):
 	@commands.command(
 		aliases=["sizeglobal", "totalsize", "fullsize", "sizeeverywhere"]
 	)
+	@slow
 	async def globalsize(self, ctx: commands.Context) -> None:
 		"""How many messages are in your corpus across Discord?"""
 		corpus_size = await self.bot.crud.user.size(ctx.author)
