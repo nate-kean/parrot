@@ -275,7 +275,7 @@ class Data(commands.Cog):
 	) -> None:
 		"""How many messages are in your corpus in this server?"""
 		who = who or cast(discord.Member, ctx.author)
-		corpus_size = self.bot.crud.member.size(who)
+		corpus_size = await self.bot.crud.member.size(who)
 		whose = "your" if who.id == ctx.author.id else f"{who.mention}'s"
 		await ctx.reply(
 			f"{corpus_size} messages in {whose} corpus on this server"
@@ -286,7 +286,7 @@ class Data(commands.Cog):
 	)
 	async def globalsize(self, ctx: commands.Context) -> None:
 		"""How many messages are in your corpus across Discord?"""
-		corpus_size = self.bot.crud.user.size(ctx.author)
+		corpus_size = await self.bot.crud.user.size(ctx.author)
 		await ctx.reply(f"{corpus_size} messages in your corpus across Discord")
 
 

@@ -4,6 +4,7 @@ from typing import Any
 import sqlmodel as sm
 
 import parrot.db.models as p
+from parrot.utils import executor_function
 from parrot.utils.trace import trace
 from parrot.utils.types import AnyUser
 
@@ -78,6 +79,7 @@ class CRUDUser(SubCRUD):
 		self.session.delete(db_user)
 		return True
 
+	@executor_function  # COUNT() is O(n) and can be slow with many messages
 	def size(self, member: AnyUser) -> int:
 		statement = sm.select(sm.func.count(sm.col(p.Message.id))).where(
 			p.Message.author_id == member.id

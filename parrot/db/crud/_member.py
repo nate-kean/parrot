@@ -5,6 +5,7 @@ import discord
 import sqlmodel as sm
 
 import parrot.db.models as p
+from parrot.utils import executor_function
 from parrot.utils.exceptions import NotRegisteredError
 from parrot.utils.trace import trace
 
@@ -114,6 +115,7 @@ class CRUDMember(SubCRUD):
 		await self.raw_delete_membership(membership)
 		return True
 
+	@executor_function  # COUNT() is O(n) and can be slow with many messages
 	def size(self, member: discord.Member) -> int:
 		statement = sm.select(sm.func.count(sm.col(p.Message.id))).where(
 			p.Message.author_id == member.id,
