@@ -51,10 +51,7 @@ class CRUDMember(SubCRUD):
 		# self.assert_registered(member)
 		statement = sm.select(p.Message.content).where(
 			p.Message.author_id == member.id,
-			# DEBUG
-			# TODO: remove
-			# p.Message.guild_id == member.guild.id,
-			p.Message.guild_id == 280298381807714304,
+			p.Message.guild_id == member.guild.id,
 		)
 		return self.session.exec(statement).all()
 
