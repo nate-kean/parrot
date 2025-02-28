@@ -69,7 +69,9 @@ class CRUDMember(SubCRUD):
 		self.session.refresh(antiavatar)
 
 	def create_antiavatar(
-		self, member: discord.Member, antiavatar_in: p.AntiavatarCreate
+		self,
+		member: discord.Member,
+		antiavatar_in: p.AntiavatarCreate,
 	) -> None:
 		antiavatar = p.Antiavatar(
 			guild_id=member.guild.id,
@@ -103,7 +105,7 @@ class CRUDMember(SubCRUD):
 		if was_last_membership:
 			await self.bot.crud.user.delete_all_data(db_user)
 
-	async def leave(self, member: discord.Member) -> bool:
+	async def leave_guild(self, member: discord.Member) -> bool:
 		membership = self._get(member)
 		if membership is None:
 			return False

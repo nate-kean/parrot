@@ -271,7 +271,7 @@ class Data(commands.Cog):
 		# Casting just to satisfy, uh, my own API, that I made...
 		member_leave_guild = cast(
 			Callable[[UserOrMember], Coroutine[Any, Any, bool]],
-			self.bot.crud.member.leave,
+			self.bot.crud.member.leave_guild,
 		)
 		await self._confirm_forget(
 			ctx,
