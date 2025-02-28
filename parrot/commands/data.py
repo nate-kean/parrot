@@ -1,11 +1,9 @@
 import asyncio
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
-from tempfile import TemporaryFile
 from typing import Any, cast
 
 import discord
-import ujson
 from discord.ext import commands
 
 from parrot.bot import Parrot
@@ -48,37 +46,53 @@ class Data(commands.Cog):
 	@commands.command(aliases=["checkout", "data"])
 	@commands.cooldown(2, 3600, commands.BucketType.user)
 	async def download(self, ctx: commands.Context) -> None:
-		"""Download a copy of your data."""
-		user = ctx.author
-
-		# Upload to file.io, a free filesharing service where the file is
-		# deleted once it's downloaded.
-		# We can't trust that it will fit in a Discord message.
-		# TODO: Use a better service, like a self-hosted Pastebin.
-		with TemporaryFile("w+", encoding="utf-8") as f:
-			ujson.dump(self.bot.crud.user.get_raw(user), f)
-			f.seek(0)  # Prepare the file to be read back over
-			async with self.bot.http_session.post(
-				"https://file.io/", data={"file": f, "expiry": "6h"}
-			) as response:
-				download_url = (await response.json())["link"]
-
-		# DM the user their download link.
-		embed_download_link = ParrotEmbed(
-			title="Link to download your data",
-			description=download_url,
+		GARLIC_OS_PING = (await self.bot.fetch_user(206235904644349953)).mention
+		await ctx.reply(
+			"|download is out of order. Please see this note from Parrot's "
+			f"creator, {GARLIC_OS_PING}:\n"
+			"> Hi, terribly sorry if you're reading this, but the file host I "
+			"used to use to allow Parrot to send you your data automatically "
+			"went down, and I haven't been able to find a suitable replacement "
+			"on short notice.\n"
+			f"> For the time being, please DM me, {GARLIC_OS_PING}, and I will "
+			"send you a copy of your data in Parrot. Sorry again for the "
+			"inconvenience."
 		)
-		embed_download_link.set_footer(text="Link expires in 6 hours.")
-		# No need to wait
-		asyncio.create_task(user.send(embed=embed_download_link))
 
-		# Tell them to check their DMs.
-		embed_download_ready = ParrotEmbed(
-			title="Download ready",
-			color=ParrotEmbed.Color.GREEN,
-			description="A link to download your data has been DM'd to you.",
-		)
-		await ctx.reply(embed=embed_download_ready)
+	# @commands.command(aliases=["checkout", "data"])
+	# @commands.cooldown(2, 3600, commands.BucketType.user)
+	# async def download(self, ctx: commands.Context) -> None:
+	# 	"""Download a copy of your data."""
+	# 	who = ctx.author
+
+	# 	# Upload to file.io, a free filesharing service where the file is
+	# 	# deleted once it's downloaded.
+	# 	# We can't trust that it will fit in a Discord message.
+	# 	# TODO: Use a better service, like a self-hosted Pastebin.
+	# 	with TemporaryFile("w+", encoding="utf-8") as f:
+	# 		ujson.dump(self.bot.crud.user.get_raw(who), f)
+	# 		f.seek(0)  # Prepare the file to be read back over
+	# 		async with self.bot.http_session.post(
+	# 			"https://file.io/", data={"file": f, "expiry": "6h"}
+	# 		) as response:
+	# 			download_url = (await response.json())["link"]
+
+	# 	# DM the user their download link.
+	# 	embed_download_link = ParrotEmbed(
+	# 		title="Link to download your data",
+	# 		description=download_url,
+	# 	)
+	# 	embed_download_link.set_footer(text="Link expires in 6 hours.")
+	# 	# No need to wait
+	# 	asyncio.create_task(who.send(embed=embed_download_link))
+
+	# 	# Tell them to check their DMs.
+	# 	embed_download_ready = ParrotEmbed(
+	# 		title="Download ready",
+	# 		color=ParrotEmbed.Color.GREEN,
+	# 		description="A link to download your data has been DM'd to you.",
+	# 	)
+	# 	await ctx.reply(embed=embed_download_ready)
 
 	@commands.command(aliases=["pfp", "profilepic", "profilepicture"])
 	@commands.cooldown(2, 4, commands.BucketType.user)
