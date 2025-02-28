@@ -1,3 +1,4 @@
+import datetime as dt
 from typing import cast
 
 import discord
@@ -8,6 +9,10 @@ from parrot.utils import ParrotEmbed
 from parrot.utils.converters import Userlike
 from parrot.utils.exceptions import UserMissingPermissions
 from parrot.utils.trace import trace
+
+
+DAY_PARROT_UNREGISTERED_EVERYONE = dt.datetime(year=2025, month=2, day=27)
+CHANGE_EXPLANATION_PERIOD = dt.timedelta(days=30)
 
 
 @trace
@@ -43,15 +48,19 @@ class Registration(commands.Cog):
 				"imitate you."
 			),
 		)
-		embed.add_field(
-			name="Tip:",
-			value=(
-				f"Try the `{self.bot.command_prefix}quickstart` command to "
-				"immediately give Parrot a dataset to imitate you from! It "
-				"will scan your past messages to create a model of how you "
-				"speak so you can start using Parrot right away."
-			),
-		)
+		now = dt.datetime.now()
+		if now - DAY_PARROT_UNREGISTERED_EVERYONE > CHANGE_EXPLANATION_PERIOD:
+			# Turn this off for a while because its confusing people who were
+			# already registered before the reset
+			embed.add_field(
+				name="Tip:",
+				value=(
+					f"Try the `{self.bot.command_prefix}quickstart` command to "
+					"immediately give Parrot a dataset to imitate you from! It "
+					"will scan your past messages to create a model of how you "
+					"speak so you can start using Parrot right away."
+				),
+			)
 		await ctx.reply(embed=embed)
 
 	@commands.command(
