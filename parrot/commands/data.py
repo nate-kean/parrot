@@ -189,7 +189,11 @@ class Data(commands.Cog):
 		else:
 			await ctx.reply(f"Confirmation code `{confirm_code}` is invalid.")
 
-	@commands.group(name="forget", invoke_without_command=True)
+	@commands.group(
+		name="forget",
+		aliases=["eliminate"],
+		invoke_without_command=True,
+	)
 	async def forget_group(self, ctx: commands.Context) -> None:
 		await ctx.send_help(self.forget_group)
 
