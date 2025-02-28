@@ -7,13 +7,11 @@ import sqlmodel as sm
 
 import parrot.db.models as p
 from parrot import config
-from parrot.utils.trace import trace
 from parrot.utils.types import Snowflake
 
 from .types import SubCRUD
 
 
-@trace
 class CRUDGuild(SubCRUD):
 	def get_learning_channel_ids(
 		self,

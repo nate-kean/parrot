@@ -3,7 +3,6 @@ import sqlmodel as sm
 
 import parrot.db.models as p
 from parrot.utils import is_learnable
-from parrot.utils.trace import trace
 from parrot.utils.types import (
 	AnyChannel,
 	LearnableChannel,
@@ -14,7 +13,6 @@ from parrot.utils.types import (
 from .types import SubCRUD
 
 
-@trace
 class CRUDChannel(SubCRUD):
 	def set_can_learn_here(
 		self, channel: LearnableChannel, value: bool

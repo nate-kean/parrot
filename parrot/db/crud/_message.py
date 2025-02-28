@@ -6,13 +6,11 @@ import discord
 import parrot.db.models as p
 from parrot import config
 from parrot.utils import cast_not_none, regex
-from parrot.utils.trace import trace
 from parrot.utils.types import Snowflake
 
 from .types import SubCRUD
 
 
-@trace
 class CRUDMessage(SubCRUD):
 	class CreateOrUpdate(Enum):
 		CREATED = auto()
