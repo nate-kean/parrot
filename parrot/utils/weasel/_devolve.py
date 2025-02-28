@@ -160,7 +160,9 @@ def survivor_select(individuals: Population, pop_size: int) -> Population:
 
 @executor_function
 def evolve(
-	objective: str, pop_size: int = 3, fitness_percent: float = 1
+	objective: str,
+	pop_size: int = 3,
+	fitness_percent: float = 1,
 ) -> str:
 	"""A whole EC run, the main driver."""
 	population, alphabet = initialize_pop(objective, pop_size)
