@@ -160,7 +160,7 @@ async def create_antiavatar_file(user: AnyUser) -> AntiavatarFile:
 			)
 		else:
 			logger.info(
-				f"Processing GIF avatar for {tag(user)}... ",
+				f"Processing GIF avatar for {tag(user)}... "
 				f"{img.width} \u2a09 {img.height} pixels · {n_frames} frames",
 			)
 
