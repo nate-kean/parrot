@@ -5,8 +5,7 @@ from discord.ext import commands
 
 from parrot import config, utils
 from parrot.bot import Parrot
-from parrot.config import logger
-from parrot.utils import cast_not_none, is_learnable, tag, weasel
+from parrot.utils import cast_not_none, is_learnable, weasel
 from parrot.utils.exceptions import NotRegistered
 
 
@@ -25,12 +24,7 @@ class MessageHandler(commands.Cog):
 
 		if is_learnable(message.channel):
 			try:
-				success = self.bot.crud.message.record(message)
-				if success:
-					logger.info(
-						f"Collected a message (ID: {message.id}) from user "
-						f"{tag(message.author)} (ID: {message.author.id})"
-					)
+				self.bot.crud.message.record(message)
 				# TODO: implement in a way that doesn't run for _every_ collected
 				# message. Every hundred from one member? Every certain proportion
 				# of the size of a member's corpus?
