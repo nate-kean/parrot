@@ -115,8 +115,6 @@ class Membership(SQLModel, table=True):
 	# - If a Membership's associated Guild is deleted.
 	guild: "Guild" = Relationship(back_populates="memberships")
 	user: "User" = Relationship(back_populates="memberships")
-	# TODO: this does work, right? Even without a bespoke foreign key column for
-	# it?
 	antiavatar: "Antiavatar" = Relationship(
 		back_populates="membership", cascade_delete=True
 	)
