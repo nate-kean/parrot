@@ -1,4 +1,5 @@
 import asyncio
+import datetime as dt
 from collections.abc import Callable, Coroutine
 from enum import Enum, auto
 from typing import Any, cast
@@ -18,8 +19,12 @@ from parrot.utils import (
 	weasel,
 )
 from parrot.utils.converters import Memberlike
-from parrot.utils.exceptions import TextNotFound
+from parrot.utils.exceptions import NotRegistered, TextNotFound
 from parrot.utils.trace import trace
+
+
+DAY_PARROT_UNREGISTERED_EVERYONE = dt.datetime(year=2025, month=2, day=27)
+CHANGE_EXPLANATION_PERIOD = dt.timedelta(days=30)
 
 
 @trace
@@ -154,19 +159,30 @@ class Text(commands.Cog):
 	@slow
 	async def imitate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""Imitate someone."""
-		logger.info(f"Imitating {user}")
-		await self._imitate_impl(
-			ctx,
-			member=cast(discord.Member, user),
-			mode=Text.ImitateMode.STANDARD,
-		)
+		try:
+			await self._imitate_impl(
+				ctx,
+				member=cast(discord.Member, user),
+				mode=Text.ImitateMode.STANDARD,
+			)
+		except NotRegistered as exc:
+			now = dt.datetime.now()
+			if (
+				now - DAY_PARROT_UNREGISTERED_EVERYONE
+				< CHANGE_EXPLANATION_PERIOD
+			):
+				exc.add_note(
+					"Note: if this is your first time doing |imitate since "
+					"Feb. 27, 2025, Parrot underwent changes that require all "
+					"users to re-register. You didn't do anything wrong :) "
+					"Just register again and you'll be back in business."
+				)
 
 	@commands.command(brief="IMITATE SOMEONE.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
 	@slow
 	async def intimidate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""IMITATE SOMEONE."""
-		logger.info(f"Intimidating {user}")
 		await self._imitate_impl(
 			ctx,
 			member=cast(discord.Member, user),
