@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from typing import cast
 
 import discord
@@ -13,6 +14,11 @@ from .types import SubCRUD
 
 @trace
 class CRUDMessage(SubCRUD):
+	class CreateOrUpdate(Enum):
+		CREATED = auto()
+		UPDATED = auto()
+		REJECTED = auto()
+
 	@staticmethod
 	def _extract_text(message: discord.Message) -> str:
 		for embed in message.embeds:
@@ -101,12 +107,22 @@ class CRUDMessage(SubCRUD):
 		self.session.add(db_message)
 		return True
 
-	def record_or_update(self, message: discord.Message) -> bool:
+	def record_or_update(self, message: discord.Message) -> CreateOrUpdate:
 		db_message = self.session.get(p.Message, message.id)
 		if db_message is None:
-			return self.record(message)
+			success = self.record(message)
+			return (
+				CRUDMessage.CreateOrUpdate.CREATED
+				if success
+				else CRUDMessage.CreateOrUpdate.REJECTED
+			)
 		else:
-			return self.update(message)
+			success = self.update(message)
+			return (
+				CRUDMessage.CreateOrUpdate.UPDATED
+				if success
+				else CRUDMessage.CreateOrUpdate.REJECTED
+			)
 
 	def delete(self, message_id: Snowflake) -> p.Message | None:
 		"""Delete a message from the database."""
