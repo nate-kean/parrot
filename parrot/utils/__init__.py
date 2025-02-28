@@ -188,9 +188,12 @@ def slow[Self_: object, **P](
 		**kwargs: P.kwargs,
 	) -> None:
 		task = asyncio.create_task(fn(self, ctx, *args, **kwargs))
-		_, pending = await asyncio.wait([task], timeout=1)
-		if len(pending) == 0:
+		done, pending = await asyncio.wait([task], timeout=1)
+		if len(done) > 1:
+			# The task finished; await it
+			await done.pop()
 			return
+		# The task did not finish yet; await it with typing
 		async with ctx.typing():
 			await pending.pop()
 
