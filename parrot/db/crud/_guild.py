@@ -21,7 +21,7 @@ class CRUDGuild(SubCRUD):
 	) -> Sequence[Snowflake]:
 		statement = sm.select(p.Channel.id).where(
 			p.Channel.guild_id == guild.id,
-			p.Channel.guild_id == True,
+			p.Channel.can_learn_here == True,
 		)
 		return self.session.exec(statement).all()
 
