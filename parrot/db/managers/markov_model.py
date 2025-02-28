@@ -9,6 +9,7 @@ from parrot import config
 from parrot.config import logger
 from parrot.db.crud import CRUD
 from parrot.utils import LastUpdatedOrderedDict, markov
+from parrot.utils.exceptions import NoData
 from parrot.utils.types import Snowflake
 
 
@@ -36,6 +37,8 @@ class MarkovModelManager:
 			return self.cache[key]
 		logger.debug(f"Cache miss: {key}")
 		corpus = self.crud.member.get_messages_content(member)
+		if len(corpus) == 0:
+			raise NoData.User(member)
 		new_model = await markov.ParrotText.new(corpus)
 		# Evict until we have enough space for the new model
 		while (

@@ -1,6 +1,7 @@
 from typing import Self
 
 from parrot import config
+from parrot.utils import tag
 from parrot.utils.types import AnyUser
 
 
@@ -27,6 +28,10 @@ class NotRegistered(_FriendlyError):
 
 class NoData(_FriendlyError):
 	"""Parrot tried to access an empty or nonexistent corpus."""
+
+	@classmethod
+	def User(cls, user: AnyUser) -> Self:
+		return cls(f"No data available for user {tag(user)}.")
 
 
 class TextNotFound(_FriendlyError):

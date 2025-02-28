@@ -123,7 +123,7 @@ class Data(commands.Cog):
 			)
 
 		if not self.bot.crud.user.exists(who):
-			raise NoData(f"No data available for user {tag(who)}.")
+			raise NoData.User(who)
 
 		confirm_code = ctx.message.id
 
