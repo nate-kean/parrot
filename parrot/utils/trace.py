@@ -2,7 +2,7 @@ import functools
 import inspect
 import types
 from collections.abc import Callable, Coroutine
-from typing import Any, ParamSpec, TypeGuard, TypeVar, cast
+from typing import Any, ParamSpec, TypeGuard, TypeVar
 
 import discord
 from discord.ext import commands
@@ -52,8 +52,12 @@ def format_kwargs(kwargs: dict) -> str:
 
 def _do_trace(fn: Callable[P, Any], *args: P.args, **kwargs: P.kwargs) -> None:
 	kwargs_str = format_kwargs(kwargs)
-	if len(args) >= 2 and isinstance(args[0], commands.Cog):
-		ctx = cast(commands.Context, args[1])
+	if (
+		len(args) >= 2
+		and isinstance(args[0], commands.Cog)
+		and isinstance(args[1], commands.Context)
+	):
+		ctx = args[1]
 		command_origin = format_command_origin(ctx)
 		args_str = format_args(args[2:])
 		logger.debug(
