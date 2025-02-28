@@ -10,8 +10,8 @@ from parrot.utils import HistoryCrawler, ParrotEmbed, checks, is_learnable
 from parrot.utils.converters import Userlike
 from parrot.utils.exceptions import (
 	AlreadyScanning,
-	ChannelTypeError,
-	UserPermissionError,
+	UserMissingPermissions,
+	WrongChannelType,
 )
 from parrot.utils.trace import trace
 from parrot.utils.types import AnyUser, Snowflake
@@ -60,17 +60,17 @@ class Quickstart(commands.Cog):
 		"""
 		# region resolve member
 		if not is_learnable(ctx.channel) or ctx.guild is None:
-			raise ChannelTypeError("Quickstart is only available in servers.")
+			raise WrongChannelType("Quickstart is only available in servers.")
 		member = cast(discord.Member | None, user)
 		if member is None or ctx.author == member:
 			member = cast(discord.Member, ctx.author)
 		else:
 			if not checks.is_admin(ctx):
-				raise UserPermissionError(
+				raise UserMissingPermissions(
 					"You can only run Quickstart on yourself."
 				)
 			if not member.bot:
-				raise UserPermissionError(
+				raise UserMissingPermissions(
 					"Quickstart can only be run on behalf of bots."
 				)
 		self.bot.crud.member.assert_registered(member)

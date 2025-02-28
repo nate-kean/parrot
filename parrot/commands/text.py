@@ -18,7 +18,7 @@ from parrot.utils import (
 	weasel,
 )
 from parrot.utils.converters import Memberlike
-from parrot.utils.exceptions import TextNotFoundError
+from parrot.utils.exceptions import TextNotFound
 from parrot.utils.trace import trace
 
 
@@ -55,9 +55,7 @@ class Text(commands.Cog):
 			if len(input_text) == 0:
 				# Author didn't include any text of their own, and the message
 				# they're trying to get text from doesn't have any text.
-				raise TextNotFoundError(
-					"😕 That message doesn't have any text!"
-				)
+				raise TextNotFound("😕 That message doesn't have any text!")
 
 		# If there is no text and no reference message, try to get the text from
 		# the last (usable) message sent in this channel.
@@ -68,9 +66,7 @@ class Text(commands.Cog):
 				if len(input_text) > 0:
 					break
 			else:  # input_text still empty
-				raise TextNotFoundError(
-					"😕 Couldn't find a gibberizeable message"
-				)
+				raise TextNotFound("😕 Couldn't find a gibberizeable message")
 
 		try:
 			async with asyncio.timeout(config.modify_text_timeout_seconds):

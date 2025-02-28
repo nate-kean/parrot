@@ -14,7 +14,7 @@ class _FriendlyError(Exception):
 		super().__init__(*args)
 
 
-class NotRegisteredError(_FriendlyError):
+class NotRegistered(_FriendlyError):
 	"""Parrot tried to access data from an unregistered user."""
 
 	@classmethod
@@ -25,15 +25,15 @@ class NotRegisteredError(_FriendlyError):
 		)
 
 
-class NoDataError(_FriendlyError):
+class NoData(_FriendlyError):
 	"""Parrot tried to access an empty or nonexistent corpus."""
 
 
-class TextNotFoundError(_FriendlyError):
+class TextNotFound(_FriendlyError):
 	"""Parrot failed to find text to use for a command."""
 
 
-class UserNotFoundError(_FriendlyError):
+class UserNotFound(_FriendlyError):
 	"""Parrot tried to get a Discord user who does not exist."""
 
 	@classmethod
@@ -41,11 +41,11 @@ class UserNotFoundError(_FriendlyError):
 		return cls(f'User "{username}" does not exist.')
 
 
-class FeatureDisabledError(_FriendlyError):
+class FeatureDisabled(_FriendlyError):
 	"""A user tried to use a feature that is disabled on this instance of Parrot."""
 
 
-class UserPermissionError(_FriendlyError):
+class UserMissingPermissions(_FriendlyError):
 	"""
 	A user tried to commit an action with Parrot that they don't have the right
 	permissions to do.
@@ -59,7 +59,7 @@ class AlreadyScanning(_FriendlyError):
 	"""
 
 
-class ChannelTypeError(_FriendlyError):
+class WrongChannelType(_FriendlyError):
 	"""
 	Requested command is not available in this type of channel.
 	"""

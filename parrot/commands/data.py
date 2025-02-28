@@ -18,8 +18,8 @@ from parrot.utils import (
 )
 from parrot.utils.converters import Memberlike, Userlike
 from parrot.utils.exceptions import (
-	NoDataError,
-	UserPermissionError,
+	NoData,
+	UserMissingPermissions,
 )
 from parrot.utils.trace import trace
 from parrot.utils.types import Snowflake
@@ -104,12 +104,12 @@ class Data(commands.Cog):
 		who = who or ctx.author
 
 		if who != ctx.author and not checks.is_admin(ctx) and not who.bot:
-			raise UserPermissionError(
+			raise UserMissingPermissions(
 				"You are not allowed to make Parrot forget other users."
 			)
 
 		if not self.bot.crud.user.exists(who):
-			raise NoDataError(f"No data available for user {tag(who)}.")
+			raise NoData(f"No data available for user {tag(who)}.")
 
 		confirm_code = ctx.message.id
 

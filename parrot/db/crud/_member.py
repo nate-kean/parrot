@@ -6,7 +6,7 @@ import sqlmodel as sm
 
 import parrot.db.models as p
 from parrot.utils import executor_function
-from parrot.utils.exceptions import NotRegisteredError
+from parrot.utils.exceptions import NotRegistered
 from parrot.utils.trace import trace
 
 from .types import SubCRUD
@@ -38,7 +38,7 @@ class CRUDMember(SubCRUD):
 
 	def assert_registered(self, member: discord.Member) -> None:
 		if not self.is_registered(member):
-			raise NotRegisteredError.User(member)
+			raise NotRegistered.User(member)
 
 	def is_registered(self, member: discord.Member) -> bool:
 		if member.bot:  # Bots are always counted as registered

@@ -7,7 +7,7 @@ from parrot import config, utils
 from parrot.bot import Parrot
 from parrot.config import logger
 from parrot.utils import cast_not_none, is_learnable, tag, weasel
-from parrot.utils.exceptions import NotRegisteredError
+from parrot.utils.exceptions import NotRegistered
 
 
 class MessageHandler(commands.Cog):
@@ -41,7 +41,7 @@ class MessageHandler(commands.Cog):
 				# asyncio.create_task(
 				# 	self.bot.markov_models.update(member, corpus_update)
 				# )
-			except NotRegisteredError:
+			except NotRegistered:
 				pass
 
 		# I am a mature person making a competent Discord bot.

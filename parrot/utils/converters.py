@@ -10,8 +10,8 @@ from parrot import config
 from parrot.bot import Parrot
 from parrot.utils import regex
 from parrot.utils.exceptions import (
-	ChannelTypeError,
-	UserNotFoundError,
+	UserNotFound,
+	WrongChannelType,
 )
 from parrot.utils.types import Snowflake
 
@@ -54,7 +54,7 @@ class BaseUserlike(ParrotConverter):
 			result = await check(ctx, argument)
 			if result is not None:
 				return result
-		raise UserNotFoundError.Username(argument or "<None>")
+		raise UserNotFound.Username(argument or "<None>")
 
 	@staticmethod
 	async def _id(
@@ -126,7 +126,7 @@ class _Memberlike(_Userlike):
 		if text not in ("you", "yourself", "previous"):
 			return
 		if ctx.guild is None:
-			raise ChannelTypeError(
+			raise WrongChannelType(
 				f'"{config.command_prefix}imitate you" is only available '
 				"in regular server text channels."
 			)
@@ -148,7 +148,7 @@ class _Memberlike(_Userlike):
 		if text not in ("someone", "somebody", "anyone", "anybody"):
 			return
 		if ctx.guild is None:
-			raise ChannelTypeError(
+			raise WrongChannelType(
 				f'"{config.command_prefix}imitate someone" is only available '
 				"in regular server text channels."
 			)
@@ -156,7 +156,7 @@ class _Memberlike(_Userlike):
 			await ctx.bot.crud.guild.get_registered_member_ids(ctx.guild)
 		)
 		if len(registered_member_ids_here) == 0:
-			raise UserNotFoundError(
+			raise UserNotFound(
 				"Nobody is registered with Parrot in this server."
 			)
 		member_id = random.choice(registered_member_ids_here)

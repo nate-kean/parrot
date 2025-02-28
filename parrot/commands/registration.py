@@ -6,7 +6,7 @@ from discord.ext import commands
 from parrot.bot import Parrot
 from parrot.utils import ParrotEmbed
 from parrot.utils.converters import Userlike
-from parrot.utils.exceptions import UserPermissionError
+from parrot.utils.exceptions import UserMissingPermissions
 from parrot.utils.trace import trace
 
 
@@ -30,7 +30,7 @@ class Registration(commands.Cog):
 		if who is None:
 			who = cast(discord.Member, ctx.author)
 		elif who.id != ctx.author.id:
-			raise UserPermissionError("You can only register yourself.")
+			raise UserMissingPermissions("You can only register yourself.")
 
 		# Update the "is_registered" field on this user in the database.
 		self.bot.crud.member.set_registered(who, True)
@@ -73,7 +73,7 @@ class Registration(commands.Cog):
 		if who is None:
 			who = cast(discord.Member, ctx.author)
 		elif who.id != ctx.author.id:
-			raise UserPermissionError("You can only unregister yourself.")
+			raise UserMissingPermissions("You can only unregister yourself.")
 
 		self.bot.crud.member.set_registered(who, False)
 
