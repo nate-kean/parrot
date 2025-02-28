@@ -61,42 +61,21 @@ class CRUDMessage(SubCRUD):
 			message.author.id != 0
 		)
 
-	def record(
-		self,
-		messages: discord.Message | list[discord.Message],
-	) -> list[discord.Message]:
+	def record(self, message: discord.Message) -> bool:
 		"""
-		Add a Message or list of Messages to a user's corpus.
-		Every Message in the list must be from the same user.
 		:pre: message.author is a discord.Member
 		"""
-		# Ensure that messages is a list.
-		# If it's not, just make it a list with one value.
-		if not isinstance(messages, list):
-			messages = [messages]
 
-		member = cast(discord.Member, messages[0].author)
+		member = cast(discord.Member, message.author)
 		if not self.bot.crud.member.is_registered(member):
-			return []
+			return False
 
-		# Every message in the list must have the same author, because the
-		# Corpus Manager adds every message passed to it to the same user.
-		for message in messages:
-			if message.author != member:
-				raise ValueError(
-					"Too many authors; every message passed in one call to"
-					"record() must have the same author."
-				)
-
-		# Filter out any messages that don't pass all of validate_message()'s
-		# checks.
-		messages_filtered = [
-			message for message in messages if self.validate_message(message)
-		]
+		if not self.validate_message(message):
+			return False
 
 		# Convert the messages to the database's format and add them to this
 		# user's corpus.
-		self.session.add_all(
+		self.session.add(
 			p.Message(
 				id=message.id,
 				author_id=member.id,
@@ -104,10 +83,9 @@ class CRUDMessage(SubCRUD):
 				channel_id=message.channel.id,
 				content=CRUDMessage._extract_text(message),
 			)
-			for message in messages_filtered
 		)
 
-		return messages_filtered
+		return True
 
 		# for message in messages:
 		# 	self.session.refresh(message)
@@ -115,13 +93,20 @@ class CRUDMessage(SubCRUD):
 		# 	return self.corpora.add(user, messages)
 		# return 0
 
-	def update(self, message: discord.Message) -> p.Message | None:
+	def update(self, message: discord.Message) -> bool:
 		db_message = self.session.get(p.Message, message.id)
 		if db_message is None:
-			return None
+			return False
 		db_message.content = CRUDMessage._extract_text(message)
 		self.session.add(db_message)
-		return db_message
+		return True
+
+	def record_or_update(self, message: discord.Message) -> bool:
+		db_message = self.session.get(p.Message, message.id)
+		if db_message is None:
+			return self.record(message)
+		else:
+			return self.update(message)
 
 	def delete(self, message_id: Snowflake) -> p.Message | None:
 		"""Delete a message from the database."""

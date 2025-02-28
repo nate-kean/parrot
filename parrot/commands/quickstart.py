@@ -190,15 +190,11 @@ class Quickstart(commands.Cog):
 					)
 				)
 
-			def crawler_action(message: discord.Message) -> bool:
-				recorded = self.bot.crud.message.record(message)
-				return len(recorded) > 0
-
 			# Create an object that will scan through the server's message
 			# history and learn from the messages this user has posted.
 			crawler = HistoryCrawler(
 				histories=histories,
-				action=crawler_action,
+				action=self.bot.crud.message.record_or_update,
 				filter=lambda message: message.author.id == member.id,
 				limit=100_000,
 			)

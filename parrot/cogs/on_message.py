@@ -25,8 +25,8 @@ class MessageHandler(commands.Cog):
 
 		if is_learnable(message.channel):
 			try:
-				recorded = self.bot.crud.message.record(message)
-				if len(recorded) > 0:
+				success = self.bot.crud.message.record(message)
+				if success:
 					logger.info(
 						f"Collected a message (ID: {message.id}) from user "
 						f"{tag(message.author)} (ID: {message.author.id})"
