@@ -22,6 +22,9 @@ class CommandErrorHandler(commands.Cog):
 		if str(error.__cause__).startswith("Friendly Error: "):
 			# Don't log Friendly Errors; display their text directly
 			error_text = str(error.__cause__)[16:]
+			notes = "\n".join(error.__notes__)
+			if len(notes) > 0:
+				error_text += "\n" + notes
 		else:
 			# Log all other kinds of errors (REAL errors)
 			error_text = str(error)
