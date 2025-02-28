@@ -177,6 +177,7 @@ class Text(commands.Cog):
 					"users to re-register. You didn't do anything wrong :) "
 					"Just register again and you'll be back in business."
 				)
+			raise
 
 	@commands.command(brief="IMITATE SOMEONE.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
