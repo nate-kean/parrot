@@ -44,18 +44,23 @@ class Reflect(commands.Cog):
 	) -> None:
 		if not is_learnable(event.message.channel):
 			return
-		recorded = self.bot.crud.message.record(event.message)
-		if len(recorded) > 0:
-			# Invalidate cached model
-			try:
-				del self.bot.markov_models.cache[
-					(
-						event.message.author.id,
-						event.message.channel.guild.id,
-					)
-				]
-			except KeyError:
-				pass
+		updated = self.bot.crud.message.update(event.message)
+		if updated is None:
+			return
+		# Invalidate cached model
+		try:
+			del self.bot.markov_models.cache[
+				(
+					event.message.author.id,
+					event.message.channel.guild.id,
+				)
+			]
+		except KeyError:
+			pass
+		logger.info(
+			f"Updated message with ID {event.message_id} with content from "
+			"edited message."
+		)
 
 
 async def setup(bot: Parrot) -> None:

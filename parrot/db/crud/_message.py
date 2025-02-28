@@ -115,6 +115,14 @@ class CRUDMessage(SubCRUD):
 		# 	return self.corpora.add(user, messages)
 		# return 0
 
+	def update(self, message: discord.Message) -> p.Message | None:
+		db_message = self.session.get(p.Message, message.id)
+		if db_message is None:
+			return None
+		db_message.content = CRUDMessage._extract_text(message)
+		self.session.add(db_message)
+		return db_message
+
 	def delete(self, message_id: Snowflake) -> p.Message | None:
 		"""Delete a message from the database."""
 		db_message = self.session.get(p.Message, message_id)
