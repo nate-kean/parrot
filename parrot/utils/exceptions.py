@@ -5,17 +5,11 @@ from parrot.utils import tag
 from parrot.utils.types import AnyUser
 
 
-class _FriendlyError(Exception):
+class FriendlyError(Exception):
 	"""An error we can show directly to the user."""
 
-	def __init__(self, *args: object):
-		# Add "Friendly Error: " to the beginning of the error text
-		if isinstance(args[0], str) and len(args) >= 2:
-			args = ("Friendly Error: " + args[0], *args[1:])
-		super().__init__(*args)
 
-
-class NotRegistered(_FriendlyError):
+class NotRegistered(FriendlyError):
 	"""Parrot tried to access data from an unregistered user."""
 
 	@classmethod
@@ -26,7 +20,7 @@ class NotRegistered(_FriendlyError):
 		)
 
 
-class NoData(_FriendlyError):
+class NoData(FriendlyError):
 	"""Parrot tried to access an empty or nonexistent corpus."""
 
 	@classmethod
@@ -34,11 +28,11 @@ class NoData(_FriendlyError):
 		return cls(f"No data available for user {tag(user)}.")
 
 
-class TextNotFound(_FriendlyError):
+class TextNotFound(FriendlyError):
 	"""Parrot failed to find text to use for a command."""
 
 
-class UserNotFound(_FriendlyError):
+class UserNotFound(FriendlyError):
 	"""Parrot tried to get a Discord user who does not exist."""
 
 	@classmethod
@@ -46,25 +40,25 @@ class UserNotFound(_FriendlyError):
 		return cls(f'User "{username}" does not exist.')
 
 
-class FeatureDisabled(_FriendlyError):
+class FeatureDisabled(FriendlyError):
 	"""A user tried to use a feature that is disabled on this instance of Parrot."""
 
 
-class UserMissingPermissions(_FriendlyError):
+class UserMissingPermissions(FriendlyError):
 	"""
 	A user tried to commit an action with Parrot that they don't have the right
 	permissions to do.
 	"""
 
 
-class AlreadyScanning(_FriendlyError):
+class AlreadyScanning(FriendlyError):
 	"""
 	A user tried to run Quickstart in a channel that Quickstart is already
 	scanning for them.
 	"""
 
 
-class WrongChannelType(_FriendlyError):
+class WrongChannelType(FriendlyError):
 	"""
 	Requested command is not available in this type of channel.
 	"""

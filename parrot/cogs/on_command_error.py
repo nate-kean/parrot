@@ -2,12 +2,17 @@ import random
 import traceback
 
 from discord.ext import commands
-from discord.ext.commands.errors import CommandError, CommandNotFound
+from discord.ext.commands.errors import (
+	CommandError,
+	CommandInvokeError,
+	CommandNotFound,
+)
 
 import parrot.assets
 from parrot.bot import Parrot
 from parrot.config import logger
 from parrot.utils import ParrotEmbed
+from parrot.utils.exceptions import FriendlyError
 
 
 class CommandErrorHandler(commands.Cog):
@@ -19,12 +24,16 @@ class CommandErrorHandler(commands.Cog):
 		if isinstance(error, CommandNotFound):
 			return
 
-		if str(error.__cause__).startswith("Friendly Error: "):
-			# Don't log Friendly Errors; display their text directly
-			error_text = str(error.__cause__)[16:]
-			notes = "\n".join(error.__notes__)
+		if isinstance(error, CommandInvokeError) and isinstance(
+			error.original, FriendlyError
+		):
+			# Prettify Friendly Error text
+			name = error.original.__class__.__name__
+			error_text = f"{name}: {error.original}"
+			notes = "\n".join(error.original.__notes__)
 			if len(notes) > 0:
 				error_text += "\n" + notes
+			# Don't log Friendly Errors
 		else:
 			# Log all other kinds of errors (REAL errors)
 			error_text = str(error)
