@@ -4,7 +4,6 @@ from typing import cast
 
 import discord
 import sqlmodel as sm
-from sqlalchemy import ScalarResult
 
 import parrot.db.models as p
 from parrot import config
@@ -19,12 +18,12 @@ class CRUDGuild(SubCRUD):
 	def get_learning_channel_ids(
 		self,
 		guild: discord.Guild,
-	) -> ScalarResult[Snowflake]:
+	) -> Sequence[Snowflake]:
 		statement = sm.select(p.Channel.id).where(
 			p.Channel.guild_id == guild.id,
 			p.Channel.guild_id == True,
 		)
-		return self.session.exec(statement)
+		return self.session.exec(statement).all()
 
 	def get_prefix(self, guild: discord.Guild) -> str:
 		statement = sm.select(p.Guild.imitation_prefix).where(
