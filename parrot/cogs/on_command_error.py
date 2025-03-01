@@ -18,7 +18,9 @@ from parrot.utils.exceptions import FriendlyError
 class CommandErrorHandler(commands.Cog):
 	@commands.Cog.listener()
 	async def on_command_error(
-		self, ctx: commands.Context, error: CommandError
+		self,
+		ctx: commands.Context,
+		error: CommandError,
 	) -> None:
 		# Ignore Command Not Found errors
 		if isinstance(error, CommandNotFound):
@@ -28,12 +30,14 @@ class CommandErrorHandler(commands.Cog):
 			error.original, FriendlyError
 		):
 			# Prettify Friendly Error text
+			# And don't log them
 			name = error.original.__class__.__name__
 			error_text = f"{name}: {error.original}"
-			notes = "\n".join(error.original.__notes__)
-			if len(notes) > 0:
-				error_text += "\n" + notes
-			# Don't log Friendly Errors
+			if (
+				hasattr(error.original, "__notes__")
+				and len(error.original.__notes__) > 0
+			):
+				error_text += "\n".join(error.original.__notes__)
 		else:
 			# Log all other kinds of errors (REAL errors)
 			error_text = str(error)
