@@ -14,6 +14,7 @@ from parrot.utils import (
 	ParrotEmbed,
 	cast_not_none,
 	discord_caps,
+	irritate_text,
 	is_speakable,
 	slow,
 	weasel,
@@ -37,6 +38,7 @@ class Text(commands.Cog):
 
 		STANDARD = auto()
 		INTIMIDATE = auto()
+		IRRITATE = auto()
 
 	@staticmethod
 	async def _modify_text(
@@ -123,6 +125,9 @@ class Text(commands.Cog):
 			case Text.ImitateMode.INTIMIDATE:
 				sentence = "**" + discord_caps(sentence) + "**"
 				name = name.upper()
+			case Text.ImitateMode.IRRITATE:
+				sentence = irritate_text(sentence)
+				name = irritate_text(name)
 
 		# Prepare to send this sentence through a webhook.
 		# Discord lets you change the name and avatar of a webhook account much
@@ -154,7 +159,7 @@ class Text(commands.Cog):
 			allowed_mentions=discord.AllowedMentions.none(),
 		)
 
-	@commands.command(aliases=["be"], brief="Imitate someone.")
+	@commands.command(aliases=["be"])
 	@commands.cooldown(2, 2, commands.BucketType.user)
 	@slow
 	async def imitate(self, ctx: commands.Context, user: Memberlike) -> None:
@@ -172,14 +177,14 @@ class Text(commands.Cog):
 				< CHANGE_EXPLANATION_PERIOD
 			):
 				exc.add_note(
-					"Note: if this is your first time doing |imitate since "
+					"**Note:** if this is your first time doing |imitate since "
 					"Feb. 27, 2025, Parrot underwent changes that require all "
 					"users to re-register. You didn't do anything wrong :) "
 					"Just register again and you'll be back in business."
 				)
 			raise
 
-	@commands.command(brief="IMITATE SOMEONE.")
+	@commands.command()
 	@commands.cooldown(2, 2, commands.BucketType.user)
 	@slow
 	async def intimidate(self, ctx: commands.Context, user: Memberlike) -> None:
@@ -188,6 +193,17 @@ class Text(commands.Cog):
 			ctx,
 			member=cast(discord.Member, user),
 			mode=Text.ImitateMode.INTIMIDATE,
+		)
+
+	@commands.command()
+	@commands.cooldown(2, 2, commands.BucketType.user)
+	@slow
+	async def irritate(self, ctx: commands.Context, user: Memberlike) -> None:
+		"""iRrItAtE sOmEoNe."""
+		await self._imitate_impl(
+			ctx,
+			member=cast(discord.Member, user),
+			mode=Text.ImitateMode.IRRITATE,
 		)
 
 	@commands.command(

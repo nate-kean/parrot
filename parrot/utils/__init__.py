@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import random
 import traceback
 from collections import OrderedDict
 from collections.abc import AsyncIterator, Callable, Coroutine
@@ -107,8 +108,22 @@ def discord_caps(text: str) -> str:
 	"""
 	words = text.replace("*", "").split(" ")
 	for i, word in enumerate(words):
-		if regex.do_not_capitalize.match(word) is None:
+		if regex.do_not_text_modify.match(word) is None:
 			words[i] = word.upper()
+	return " ".join(words)
+
+
+def irritate_text(text: str) -> str:
+	"""Alternate characters uppercase and lowercase"""
+	words = text.split(" ")
+	upper = random.random() < 0.5
+	for i, word in enumerate(words):
+		if regex.do_not_text_modify.match(word) is None:
+			new_word = ""
+			for char in word:
+				new_word += word.upper() if upper else word.lower()
+				upper = not upper
+			words[i] = new_word
 	return " ".join(words)
 
 
