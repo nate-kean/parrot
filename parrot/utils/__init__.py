@@ -121,7 +121,7 @@ def irritate_text(text: str) -> str:
 		if regex.do_not_text_modify.match(word) is None:
 			new_word = ""
 			for char in word:
-				new_word += word.upper() if upper else word.lower()
+				new_word += char.upper() if upper else char.lower()
 				upper = not upper
 			words[i] = new_word
 	return " ".join(words)

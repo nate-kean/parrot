@@ -106,7 +106,21 @@ class Text(commands.Cog):
 			return
 
 		# Fetch this user's model.
-		model = await ctx.bot.markov_models.fetch(member)
+		try:
+			model = await ctx.bot.markov_models.fetch(member)
+		except NotRegistered as exc:
+			now = dt.datetime.now()
+			if (
+				now - DAY_PARROT_UNREGISTERED_EVERYONE
+				< CHANGE_EXPLANATION_PERIOD
+			):
+				exc.add_note(
+					"**Note:** if this is your first time doing |imitate since "
+					"Feb. 27, 2025, Parrot underwent changes that require all "
+					"users to re-register. You didn't do anything wrong :) "
+					"Just register again and you'll be back in business."
+				)
+			raise
 		sentence = model.make_short_sentence(500) or "Error"
 
 		prefix = (
@@ -164,25 +178,11 @@ class Text(commands.Cog):
 	@slow
 	async def imitate(self, ctx: commands.Context, user: Memberlike) -> None:
 		"""Imitate someone."""
-		try:
-			await self._imitate_impl(
-				ctx,
-				member=cast(discord.Member, user),
-				mode=Text.ImitateMode.STANDARD,
-			)
-		except NotRegistered as exc:
-			now = dt.datetime.now()
-			if (
-				now - DAY_PARROT_UNREGISTERED_EVERYONE
-				< CHANGE_EXPLANATION_PERIOD
-			):
-				exc.add_note(
-					"**Note:** if this is your first time doing |imitate since "
-					"Feb. 27, 2025, Parrot underwent changes that require all "
-					"users to re-register. You didn't do anything wrong :) "
-					"Just register again and you'll be back in business."
-				)
-			raise
+		await self._imitate_impl(
+			ctx,
+			member=cast(discord.Member, user),
+			mode=Text.ImitateMode.STANDARD,
+		)
 
 	@commands.command()
 	@commands.cooldown(2, 2, commands.BucketType.user)
