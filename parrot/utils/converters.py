@@ -96,7 +96,7 @@ class _Userlike(BaseUserlike):
 		ctx: commands.Context,
 		text: str | None,
 	) -> discord.Member | None:
-		if text in ("me", "myself"):
+		if text is not None and text.lower() in ("me", "myself"):
 			# guaranteed Member and not User because that is already asserted
 			# in BaseUserlike.convert()
 			return cast(discord.Member, ctx.author)
@@ -123,7 +123,7 @@ class _Memberlike(_Userlike):
 	) -> discord.Member | None:
 		"""Get the author of the last message send in the channel who isn't
 		Parrot or the person who sent this command."""
-		if text not in ("you", "yourself", "previous"):
+		if text is None or text not in ("you", "yourself", "previous"):
 			return
 		if ctx.guild is None:
 			raise WrongChannelType(
@@ -145,7 +145,12 @@ class _Memberlike(_Userlike):
 		ctx: commands.Context[Parrot], text: str | None
 	) -> discord.Member | None:
 		"""Choose a random registered user in this channel."""
-		if text not in ("someone", "somebody", "anyone", "anybody"):
+		if text is None or text not in (
+			"someone",
+			"somebody",
+			"anyone",
+			"anybody",
+		):
 			return
 		if ctx.guild is None:
 			raise WrongChannelType(
@@ -153,7 +158,7 @@ class _Memberlike(_Userlike):
 				"in regular server text channels."
 			)
 		registered_member_ids_here = (
-			await ctx.bot.crud.guild.get_registered_member_ids(ctx.guild)
+			ctx.bot.crud.guild.get_registered_member_ids(ctx.guild)
 		)
 		if len(registered_member_ids_here) == 0:
 			raise UserNotFound(
