@@ -107,7 +107,7 @@ def trace_fn[F: (AsyncFunction, SyncFunction)](fn: F) -> F:
 
 def trace_class[Class](class_: Class) -> Class:
 	for key in dir(class_):
-		if key.startswith("_"):
+		if key.startswith("_") or key in TRACE_BLOCKLIST:
 			continue
 		value = getattr(class_, key)
 		if not isinstance(value, TRACE_TYPES):
