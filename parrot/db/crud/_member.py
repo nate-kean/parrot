@@ -31,15 +31,12 @@ class CRUDMember(SubCRUD):
 			or p.Guild(id=member.guild.id),
 		)
 
+	# region Registration
 	def set_registered(self, member: discord.Member, value: bool) -> None:
 		membership = self._get_or_create(member)
 		membership.is_registered = value
 		self.session.add(membership)
 		self.session.commit()
-
-	def assert_registered(self, member: discord.Member) -> None:
-		if not self.is_registered(member):
-			raise NotRegistered.User(member)
 
 	def is_registered(self, member: discord.Member) -> bool:
 		if member.bot:  # Bots are always counted as registered
@@ -47,25 +44,34 @@ class CRUDMember(SubCRUD):
 		membership = self._get(member)
 		return membership is not None and membership.is_registered
 
+	def assert_registered(self, member: discord.Member) -> None:
+		if not self.is_registered(member):
+			raise NotRegistered.User(member)
+
+	# endregion
+
+	# region Messages
 	def get_messages_content(self, member: discord.Member) -> Sequence[str]:
 		"""
 		Get the text content of every message this user has said in this guild.
 		"""
-		# self.assert_registered(member)
 		statement = sm.select(p.Message.content).where(
 			p.Message.author_id == member.id,
 			p.Message.guild_id == member.guild.id,
 		)
 		return self.session.exec(statement).all()
 
-	def get_antiavatar(self, member: discord.Member) -> p.Antiavatar | None:
-		# self.assert_registered(member)
-		statement = sm.select(p.Antiavatar).where(
-			p.Antiavatar.guild_id == member.guild.id,
-			p.Antiavatar.user_id == member.id,
+	@executor_function  # COUNT() is O(n) and can be slow with many messages
+	def size(self, member: discord.Member) -> int:
+		statement = sm.select(sm.func.count(sm.col(p.Message.id))).where(
+			p.Message.author_id == member.id,
+			p.Message.guild_id == member.guild.id,
 		)
-		return self.session.exec(statement).first()
+		return self.session.exec(statement).first() or 0
 
+	# endregion
+
+	# region Antiavatar
 	def update_antiavatar(self, antiavatar: p.Antiavatar) -> None:
 		self.session.add(antiavatar)
 		self.session.commit()
@@ -85,6 +91,15 @@ class CRUDMember(SubCRUD):
 		)
 		self.update_antiavatar(antiavatar)
 
+	def get_antiavatar(self, member: discord.Member) -> p.Antiavatar | None:
+		statement = sm.select(p.Antiavatar).where(
+			p.Antiavatar.user_id == member.id,
+			p.Antiavatar.guild_id == member.guild.id,
+		)
+		return self.session.exec(statement).first()
+
+	# endregion
+
 	# region Affixes
 	def set_custom_prefix(self, member: discord.Member, prefix: str) -> None:
 		membership = self._get_or_create(member)
@@ -103,6 +118,8 @@ class CRUDMember(SubCRUD):
 		return self._get_or_create(member).custom_suffix
 
 	# endregion
+
+	# region Pruning
 	def mark_gone(self, member: discord.Member) -> bool:
 		membership = self._get(member)
 		if membership is None:
@@ -133,10 +150,4 @@ class CRUDMember(SubCRUD):
 		await self.raw_delete_membership(membership)
 		return True
 
-	@executor_function  # COUNT() is O(n) and can be slow with many messages
-	def size(self, member: discord.Member) -> int:
-		statement = sm.select(sm.func.count(sm.col(p.Message.id))).where(
-			p.Message.author_id == member.id,
-			p.Message.guild_id == member.guild.id,
-		)
-		return self.session.exec(statement).first() or 0
+	# endregion

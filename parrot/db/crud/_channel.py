@@ -14,8 +14,11 @@ from .types import SubCRUD
 
 
 class CRUDChannel(SubCRUD):
+	# region Permissions
 	def set_can_learn_here(
-		self, channel: LearnableChannel, value: bool
+		self,
+		channel: LearnableChannel,
+		value: bool,
 	) -> bool:
 		"""
 		Set whether Parrot is allowed to learn in a certain channel.
@@ -49,12 +52,9 @@ class CRUDChannel(SubCRUD):
 		)
 		return self.session.exec(statement).first() is not None
 
-	def get_webhook_id(self, channel: SpeakableChannel) -> Snowflake | None:
-		statement = sm.select(p.Channel.webhook_id).where(
-			p.Channel.id == channel.id
-		)
-		return self.session.exec(statement).first()
+	# endregion
 
+	# region Webhooks
 	def set_webhook_id(
 		self,
 		channel: SpeakableChannel,
@@ -68,9 +68,20 @@ class CRUDChannel(SubCRUD):
 		self.session.commit()
 		self.session.refresh(db_channel)
 
+	def get_webhook_id(self, channel: SpeakableChannel) -> Snowflake | None:
+		statement = sm.select(p.Channel.webhook_id).where(
+			p.Channel.id == channel.id
+		)
+		return self.session.exec(statement).first()
+
+	# endregion
+
+	# region Pruning
 	def delete(self, channel: LearnableChannel) -> bool:
 		db_channel = self.session.get(p.Channel, channel.id)
 		if db_channel is None:
 			return False
 		self.session.delete(db_channel)
 		return True
+
+	# endregion

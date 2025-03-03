@@ -23,6 +23,18 @@ class CRUDGuild(SubCRUD):
 		)
 		return self.session.exec(statement).all()
 
+	def get_registered_member_ids(
+		self,
+		guild: discord.Guild,
+	) -> Sequence[Snowflake]:
+		return self.session.exec(
+			sm.select(p.Membership.user_id).where(
+				p.Membership.guild_id == guild.id,
+				p.Membership.is_registered == True,
+			)
+		).all()
+
+	# region Affixes
 	def get_prefix(self, guild: discord.Guild) -> str:
 		statement = sm.select(p.Guild.imitation_prefix).where(
 			p.Guild.id == guild.id
@@ -59,22 +71,10 @@ class CRUDGuild(SubCRUD):
 		db_guild.imitation_suffix = new_suffix
 		self.session.add(db_guild)
 
-	async def get_registered_member_ids(
-		self,
-		guild: discord.Guild,
-	) -> Sequence[Snowflake]:
-		return cast(
-			Sequence[Snowflake],
-			self.session.exec(
-				sm.select(p.Membership.user_id).where(
-					p.Membership.guild_id == guild.id,
-					p.Membership.is_registered == True,
-				)
-			).all()
-			or [],
-		)
+	# endregion
 
-	async def prune_expired_memberships(self) -> None:
+	# region Pruning
+	async def prune_expired_memberships(self) -> int:
 		now = discord.utils.time_snowflake(dt.datetime.now())
 		statement = sm.select(p.Membership).where(
 			sm.col(p.Membership.ended_since).is_not(None),
@@ -107,3 +107,5 @@ class CRUDGuild(SubCRUD):
 			return False
 		self.session.delete(db_guild)
 		return True
+
+	# endregion
