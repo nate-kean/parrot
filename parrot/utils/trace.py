@@ -20,6 +20,13 @@ TRACE_TYPES = (
 	types.ClassMethodDescriptorType,
 )
 
+# Specific functions I don't want automatically wrapped
+TRACE_BLOCKLIST = (
+	# https://discordpy.readthedocs.io/en/latest/ext/commands/api.html?highlight=bot_check#discord.ext.commands.Cog.bot_check
+	"bot_check",
+	"bot_check_once",
+)
+
 
 P = ParamSpec("P")
 Ret = TypeVar("Ret")
