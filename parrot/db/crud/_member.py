@@ -24,12 +24,15 @@ class CRUDMember(SubCRUD):
 		)
 		return self.session.exec(statement).first()
 
-	def set_registered(self, member: discord.Member, value: bool) -> None:
-		membership = self._get(member) or p.Membership(
+	def _get_or_create(self, member: discord.Member) -> p.Membership:
+		return self._get(member) or p.Membership(
 			user=self.session.get(p.User, member.id) or p.User(id=member.id),
 			guild=self.session.get(p.Guild, member.guild.id)
 			or p.Guild(id=member.guild.id),
 		)
+
+	def set_registered(self, member: discord.Member, value: bool) -> None:
+		membership = self._get_or_create(member)
 		membership.is_registered = value
 		self.session.add(membership)
 		self.session.commit()
