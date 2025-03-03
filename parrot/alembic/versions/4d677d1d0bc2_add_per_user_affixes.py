@@ -24,13 +24,19 @@ def upgrade() -> None:
 	op.add_column(
 		"membership",
 		sa.Column(
-			"custom_prefix", sa.String(), nullable=False, server_default=""
+			"custom_prefix",
+			sa.String(),
+			nullable=True,
+			server_default=sa.null(),
 		),
 	)
 	op.add_column(
 		"membership",
 		sa.Column(
-			"custom_suffix", sa.String(), nullable=False, server_default=""
+			"custom_suffix",
+			sa.String(),
+			nullable=True,
+			server_default=sa.null(),
 		),
 	)
 

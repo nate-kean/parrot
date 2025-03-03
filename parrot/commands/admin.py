@@ -209,7 +209,7 @@ class Admin(commands.Cog):
 	@commands.check(checks.is_admin)
 	async def custom_prefix_reset(self, ctx: commands.Context) -> None:
 		self.bot.crud.member.set_custom_prefix(
-			cast(discord.Member, ctx.author), ""
+			cast(discord.Member, ctx.author), None
 		)
 		await ctx.reply("✅ Your imitation prefix has been cleared")
 
@@ -244,7 +244,7 @@ class Admin(commands.Cog):
 	@commands.check(checks.is_admin)
 	async def custom_suffix_reset(self, ctx: commands.Context) -> None:
 		self.bot.crud.member.set_custom_suffix(
-			cast(discord.Member, ctx.author), ""
+			cast(discord.Member, ctx.author), None
 		)
 		await ctx.reply("✅ Your imitation suffix has been cleared")
 

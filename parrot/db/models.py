@@ -101,8 +101,8 @@ class Membership(SQLModel, table=True):
 	ended_since: Snowflake | None = None
 
 	# Override guild-wide affixes per member
-	custom_prefix: str = ""
-	custom_suffix: str = ""
+	custom_prefix: str | None = None
+	custom_suffix: str | None = None
 
 	# Explicit delete conditions:
 	# - User leaves a Guild *for long enough*.

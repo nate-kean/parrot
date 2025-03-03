@@ -84,6 +84,30 @@ class Text(commands.Cog):
 		await ctx.send(text[:2000])
 
 	@staticmethod
+	def _resolve_prefix(
+		ctx: commands.Context[Parrot],
+		member: discord.Member,
+	) -> str:
+		if ctx.guild is None:
+			return ""
+		custom_prefix = ctx.bot.crud.member.get_custom_prefix(member)
+		if custom_prefix is None:
+			return ctx.bot.crud.guild.get_prefix(ctx.guild)
+		return custom_prefix
+
+	@staticmethod
+	def _resolve_suffix(
+		ctx: commands.Context[Parrot],
+		member: discord.Member,
+	) -> str:
+		if ctx.guild is None:
+			return ""
+		custom_suffix = ctx.bot.crud.member.get_custom_suffix(member)
+		if custom_suffix is None:
+			return ctx.bot.crud.guild.get_suffix(ctx.guild)
+		return custom_suffix
+
+	@staticmethod
 	async def _imitate_impl(
 		ctx: commands.Context[Parrot],
 		*,
@@ -123,22 +147,8 @@ class Text(commands.Cog):
 			raise
 		sentence = model.make_short_sentence(500) or "Error"
 
-		prefix = (
-			(
-				ctx.bot.crud.member.get_custom_prefix(member)
-				or ctx.bot.crud.guild.get_prefix(ctx.guild)
-			)
-			if ctx.guild is not None
-			else ""
-		)
-		suffix = (
-			(
-				ctx.bot.crud.member.get_custom_suffix(member)
-				or ctx.bot.crud.guild.get_suffix(ctx.guild)
-			)
-			if ctx.guild is not None
-			else ""
-		)
+		prefix = Text._resolve_prefix(ctx, member)
+		suffix = Text._resolve_suffix(ctx, member)
 		name = f"{prefix}{member.display_name}{suffix}"
 
 		match mode:
