@@ -124,12 +124,18 @@ class Text(commands.Cog):
 		sentence = model.make_short_sentence(500) or "Error"
 
 		prefix = (
-			ctx.bot.crud.guild.get_prefix(ctx.guild)
+			(
+				ctx.bot.crud.member.get_custom_prefix(member)
+				or ctx.bot.crud.guild.get_prefix(ctx.guild)
+			)
 			if ctx.guild is not None
 			else ""
 		)
 		suffix = (
-			ctx.bot.crud.guild.get_suffix(ctx.guild)
+			(
+				ctx.bot.crud.member.get_custom_suffix(member)
+				or ctx.bot.crud.guild.get_suffix(ctx.guild)
+			)
 			if ctx.guild is not None
 			else ""
 		)

@@ -100,6 +100,10 @@ class Membership(SQLModel, table=True):
 	# None if the user is still there.
 	ended_since: Snowflake | None = None
 
+	# Override guild-wide affixes per member
+	custom_prefix: str = ""
+	custom_suffix: str = ""
+
 	# Explicit delete conditions:
 	# - User leaves a Guild *for long enough*.
 	# - (TODO) User does a guild-specific version of |forget me.
