@@ -207,7 +207,9 @@ class Admin(commands.Cog):
 			f'✅ Your custom imitation prefix is now: "{new_prefix}"'
 		)
 
-	@custom_prefix_group.command(name="reset", aliases=["default", "clear"])
+	@custom_prefix_group.command(
+		name="reset", aliases=["default", "clear", "remove", "delete"]
+	)
 	async def custom_prefix_reset(self, ctx: commands.Context) -> None:
 		self.bot.crud.member.set_custom_prefix(
 			cast(discord.Member, ctx.author), None
@@ -243,7 +245,9 @@ class Admin(commands.Cog):
 		)
 		await ctx.reply(f'✅ Your imitation suffix is now: "{new_suffix}"')
 
-	@custom_suffix_group.command(name="reset", aliases=["default", "clear"])
+	@custom_suffix_group.command(
+		name="reset", aliases=["default", "clear", "remove", "delete"]
+	)
 	async def custom_suffix_reset(self, ctx: commands.Context) -> None:
 		self.bot.crud.member.set_custom_suffix(
 			cast(discord.Member, ctx.author), None
