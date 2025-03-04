@@ -37,7 +37,7 @@ class CommandErrorHandler(commands.Cog):
 				hasattr(error.original, "__notes__")
 				and len(error.original.__notes__) > 0
 			):
-				error_text += "\n".join(error.original.__notes__)
+				error_text += "\n\n" + "\n".join(error.original.__notes__)
 		else:
 			# Log all other kinds of errors (REAL errors)
 			error_text = str(error)
