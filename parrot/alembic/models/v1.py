@@ -14,6 +14,9 @@ from sqlmodel import Field, SQLModel
 SQLModel.metadata.naming_convention = NAMING_CONVENTION
 
 
+__all__ = ["Channels", "Guilds", "Messages", "Users"]
+
+
 class Channels(SQLModel, table=True):
 	id: Snowflake = Field(primary_key=True)
 	can_speak_here: bool = False
