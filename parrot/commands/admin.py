@@ -189,7 +189,10 @@ class Admin(commands.Cog):
 		prefix = self.bot.crud.member.get_custom_prefix(
 			cast(discord.Member, ctx.author)
 		)
-		await ctx.reply(f'Your custom imitation prefix is: "{prefix}"')
+		if prefix is None:
+			await ctx.reply("You do not have a custom prefix set")
+		else:
+			await ctx.reply(f'Your custom imitation prefix is: "{prefix}"')
 
 	@custom_prefix_group.command(name="set")
 	async def custom_prefix_set(
@@ -224,7 +227,10 @@ class Admin(commands.Cog):
 		suffix = self.bot.crud.member.get_custom_suffix(
 			cast(discord.Member, ctx.author)
 		)
-		await ctx.reply(f'Your imitation suffix is: "{suffix}"')
+		if suffix is None:
+			await ctx.reply("You do not have a custom suffix set")
+		else:
+			await ctx.reply(f'Your imitation suffix is: "{suffix}"')
 
 	@custom_suffix_group.command(name="set")
 	async def custom_suffix_set(
