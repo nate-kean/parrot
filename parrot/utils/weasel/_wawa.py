@@ -55,6 +55,8 @@ def find_syllables(word: str) -> list[str]:
 
 # Async just because the rest of the text algorithms are
 async def wawa(text: str) -> str:
+	if "wawa" in text:
+		return "wawa"
 	for _ in range(10):
 		syls = (find_syllables(word) for word in text.split(" "))
 		syls_flat: list[str] = []
