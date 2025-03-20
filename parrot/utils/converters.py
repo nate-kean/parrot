@@ -123,7 +123,7 @@ class _Memberlike(_Userlike):
 	) -> discord.Member | None:
 		"""Get the author of the last message send in the channel who isn't
 		Parrot or the person who sent this command."""
-		if text is None or text not in ("you", "yourself", "previous"):
+		if text is None or text.lower() not in ("you", "yourself", "previous"):
 			return
 		if ctx.guild is None:
 			raise WrongChannelType(
@@ -145,7 +145,7 @@ class _Memberlike(_Userlike):
 		ctx: commands.Context[Parrot], text: str | None
 	) -> discord.Member | None:
 		"""Choose a random registered user in this channel."""
-		if text is None or text not in (
+		if text is None or text.lower() not in (
 			"someone",
 			"somebody",
 			"anyone",
