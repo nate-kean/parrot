@@ -150,6 +150,8 @@ class _Memberlike(_Userlike):
 			"somebody",
 			"anyone",
 			"anybody",
+			"somebuddy",
+			"anybuddy",
 		):
 			return
 		if ctx.guild is None:
