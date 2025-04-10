@@ -101,7 +101,7 @@ class CRUDMember(SubCRUD):
 	# endregion
 
 	# region Affixes
-	def set_custom_prefix(
+	def set_prefix(
 		self,
 		member: discord.Member,
 		prefix: str | None,
@@ -110,10 +110,10 @@ class CRUDMember(SubCRUD):
 		membership.custom_prefix = prefix
 		self.session.add(membership)
 
-	def get_custom_prefix(self, member: discord.Member) -> str | None:
+	def get_prefix(self, member: discord.Member) -> str | None:
 		return self._get_or_create(member).custom_prefix
 
-	def set_custom_suffix(
+	def set_suffix(
 		self,
 		member: discord.Member,
 		suffix: str | None,
@@ -122,7 +122,7 @@ class CRUDMember(SubCRUD):
 		membership.custom_suffix = suffix
 		self.session.add(membership)
 
-	def get_custom_suffix(self, member: discord.Member) -> str | None:
+	def get_suffix(self, member: discord.Member) -> str | None:
 		return self._get_or_create(member).custom_suffix
 
 	# endregion

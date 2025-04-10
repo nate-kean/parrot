@@ -90,7 +90,7 @@ class Text(commands.Cog):
 	) -> str:
 		if ctx.guild is None:
 			return ""
-		custom_prefix = ctx.bot.crud.member.get_custom_prefix(member)
+		custom_prefix = ctx.bot.crud.member.get_prefix(member)
 		if custom_prefix is None:
 			return ctx.bot.crud.guild.get_prefix(ctx.guild)
 		return custom_prefix
@@ -102,7 +102,7 @@ class Text(commands.Cog):
 	) -> str:
 		if ctx.guild is None:
 			return ""
-		custom_suffix = ctx.bot.crud.member.get_custom_suffix(member)
+		custom_suffix = ctx.bot.crud.member.get_suffix(member)
 		if custom_suffix is None:
 			return ctx.bot.crud.guild.get_suffix(ctx.guild)
 		return custom_suffix

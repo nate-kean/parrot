@@ -109,84 +109,90 @@ class Admin(commands.Cog):
 		# await paginator.run()
 
 	# region Guild affixes
-	@commands.group(name="prefix", invoke_without_command=True)
+	@commands.group(name="serverprefix", invoke_without_command=True)
 	@commands.guild_only()
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	async def prefix_group(self, ctx: commands.Context) -> None:
+	async def serverprefix_group(self, ctx: commands.Context) -> None:
 		"""Manage Parrot's imitation prefix for this server."""
-		await self.prefix_get(ctx)
+		await self.serverprefix_get(ctx)
 
-	@prefix_group.command(name="get")
-	async def prefix_get(self, ctx: commands.Context) -> None:
+	@serverprefix_group.command(name="get")
+	async def serverprefix_get(self, ctx: commands.Context) -> None:
 		# ctx.guild guaranteed not None because this command group is guild-only
 		prefix = self.bot.crud.guild.get_prefix(cast_not_none(ctx.guild))
 		await ctx.reply(
 			f'This server\'s default imitation prefix is: "{prefix}"'
 		)
 
-	@prefix_group.command(name="set")
+	@serverprefix_group.command(name="set")
 	@commands.check(checks.is_admin)
-	async def prefix_set(self, ctx: commands.Context, new_prefix: str) -> None:
+	async def serverprefix_set(
+		self, ctx: commands.Context, new_prefix: str
+	) -> None:
 		self.bot.crud.guild.set_prefix(cast_not_none(ctx.guild), new_prefix)
 		await ctx.reply(
 			f'✅ This server\'s default imitation prefix is now: "{new_prefix}"'
 		)
 
-	@prefix_group.command(name="reset", aliases=["default"])
+	@serverprefix_group.command(name="reset", aliases=["default"])
 	@commands.check(checks.is_admin)
-	async def prefix_reset(self, ctx: commands.Context) -> None:
+	async def serverprefix_reset(self, ctx: commands.Context) -> None:
 		new_prefix = p.GuildMeta.default_imitation_prefix
 		self.bot.crud.guild.set_prefix(cast_not_none(ctx.guild), new_prefix)
 		await ctx.reply(
-			f'✅ This server\'s default imitation prefix has been reset to: "{new_prefix}"'
+			"✅ This server's default imitation prefix has been reset to: "
+			f"{new_prefix}"
 		)
 
-	@commands.group(name="suffix", invoke_without_command=True)
+	@commands.group(name="serversuffix", invoke_without_command=True)
 	@commands.guild_only()
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	async def suffix_group(self, ctx: commands.Context) -> None:
+	async def serversuffix_group(self, ctx: commands.Context) -> None:
 		"""Manage Parrot's imitation suffix for this server."""
-		await self.suffix_get(ctx)
+		await self.serversuffix_get(ctx)
 
-	@suffix_group.command(name="get")
-	async def suffix_get(self, ctx: commands.Context) -> None:
+	@serversuffix_group.command(name="get")
+	async def serversuffix_get(self, ctx: commands.Context) -> None:
 		# ctx.guild guaranteed not None because this command group is guild-only
 		suffix = self.bot.crud.guild.get_suffix(cast_not_none(ctx.guild))
 		await ctx.reply(
 			f'This server\'s default imitation suffix is: "{suffix}"'
 		)
 
-	@suffix_group.command(name="set")
+	@serversuffix_group.command(name="set")
 	@commands.check(checks.is_admin)
-	async def suffix_set(self, ctx: commands.Context, new_suffix: str) -> None:
+	async def serversuffix_set(
+		self, ctx: commands.Context, new_suffix: str
+	) -> None:
 		self.bot.crud.guild.set_suffix(cast_not_none(ctx.guild), new_suffix)
 		await ctx.reply(
 			f'✅ This server\'s default imitation suffix is now: "{new_suffix}"'
 		)
 
-	@suffix_group.command(name="reset", aliases=["default"])
+	@serversuffix_group.command(name="reset", aliases=["default"])
 	@commands.check(checks.is_admin)
-	async def suffix_reset(self, ctx: commands.Context) -> None:
+	async def serversuffix_reset(self, ctx: commands.Context) -> None:
 		new_suffix = p.GuildMeta.default_imitation_suffix
 		self.bot.crud.guild.set_suffix(cast_not_none(ctx.guild), new_suffix)
 		await ctx.reply(
-			f'✅ This server\'s default imitation suffix has been reset to: "{new_suffix}"'
+			"✅ This server's default imitation suffix has been reset to: "
+			"{new_suffix}"
 		)
 
 	# endregion
 
 	# region Member affixes
-	@commands.group(name="customprefix", invoke_without_command=True)
+	@commands.group(name="prefix", invoke_without_command=True)
 	@commands.guild_only()
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	async def custom_prefix_group(self, ctx: commands.Context) -> None:
+	async def prefix_group(self, ctx: commands.Context) -> None:
 		"""Manage your custom imitation prefix for this server."""
-		await self.custom_prefix_get(ctx)
+		await self.prefix_get(ctx)
 
-	@custom_prefix_group.command(name="get")
-	async def custom_prefix_get(self, ctx: commands.Context) -> None:
+	@prefix_group.command(name="get")
+	async def prefix_get(self, ctx: commands.Context) -> None:
 		# Author is guaranteed Member because this command group is guild-only
-		prefix = self.bot.crud.member.get_custom_prefix(
+		prefix = self.bot.crud.member.get_prefix(
 			cast(discord.Member, ctx.author)
 		)
 		if prefix is None:
@@ -194,39 +200,37 @@ class Admin(commands.Cog):
 		else:
 			await ctx.reply(f'Your custom imitation prefix is: "{prefix}"')
 
-	@custom_prefix_group.command(name="set")
-	async def custom_prefix_set(
+	@prefix_group.command(name="set")
+	async def prefix_set(
 		self,
 		ctx: commands.Context,
 		new_prefix: str,
 	) -> None:
-		self.bot.crud.member.set_custom_prefix(
+		self.bot.crud.member.set_prefix(
 			cast(discord.Member, ctx.author), new_prefix
 		)
 		await ctx.reply(
 			f'✅ Your custom imitation prefix is now: "{new_prefix}"'
 		)
 
-	@custom_prefix_group.command(
+	@prefix_group.command(
 		name="reset", aliases=["default", "clear", "remove", "delete"]
 	)
-	async def custom_prefix_reset(self, ctx: commands.Context) -> None:
-		self.bot.crud.member.set_custom_prefix(
-			cast(discord.Member, ctx.author), None
-		)
+	async def prefix_reset(self, ctx: commands.Context) -> None:
+		self.bot.crud.member.set_prefix(cast(discord.Member, ctx.author), None)
 		await ctx.reply("✅ Your imitation prefix has been cleared")
 
-	@commands.group(name="customsuffix", invoke_without_command=True)
+	@commands.group(name="suffix", invoke_without_command=True)
 	@commands.guild_only()
 	@commands.cooldown(2, 4, commands.BucketType.user)
-	async def custom_suffix_group(self, ctx: commands.Context) -> None:
+	async def suffix_group(self, ctx: commands.Context) -> None:
 		"""Manage your imitation suffix for this server."""
-		await self.custom_suffix_get(ctx)
+		await self.suffix_get(ctx)
 
-	@custom_suffix_group.command(name="get")
-	async def custom_suffix_get(self, ctx: commands.Context) -> None:
+	@suffix_group.command(name="get")
+	async def suffix_get(self, ctx: commands.Context) -> None:
 		# ctx.guild guaranteed not None because this command group is guild-only
-		suffix = self.bot.crud.member.get_custom_suffix(
+		suffix = self.bot.crud.member.get_suffix(
 			cast(discord.Member, ctx.author)
 		)
 		if suffix is None:
@@ -234,24 +238,22 @@ class Admin(commands.Cog):
 		else:
 			await ctx.reply(f'Your imitation suffix is: "{suffix}"')
 
-	@custom_suffix_group.command(name="set")
-	async def custom_suffix_set(
+	@suffix_group.command(name="set")
+	async def suffix_set(
 		self,
 		ctx: commands.Context,
 		new_suffix: str,
 	) -> None:
-		self.bot.crud.member.set_custom_suffix(
+		self.bot.crud.member.set_suffix(
 			cast(discord.Member, ctx.author), new_suffix
 		)
 		await ctx.reply(f'✅ Your imitation suffix is now: "{new_suffix}"')
 
-	@custom_suffix_group.command(
+	@suffix_group.command(
 		name="reset", aliases=["default", "clear", "remove", "delete"]
 	)
-	async def custom_suffix_reset(self, ctx: commands.Context) -> None:
-		self.bot.crud.member.set_custom_suffix(
-			cast(discord.Member, ctx.author), None
-		)
+	async def suffix_reset(self, ctx: commands.Context) -> None:
+		self.bot.crud.member.set_suffix(cast(discord.Member, ctx.author), None)
 		await ctx.reply("✅ Your imitation suffix has been cleared")
 
 	# endregion
