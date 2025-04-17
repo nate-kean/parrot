@@ -61,11 +61,11 @@ def upgrade() -> None:
 		# empty and intentionally have trailing spaces.
 		bop.alter_column(
 			"imitation_prefix",
-			server_default=f"'{GuildMeta.default_imitation_prefix}'",
+			server_default="'Not '",
 		)
 		bop.alter_column(
 			"imitation_suffix",
-			server_default=f"'{GuildMeta.default_imitation_suffix}'",
+			server_default="''",
 		)
 		# 64-bit Snowflake timestamp; type as BigInt
 		# It was also missing its NULL default
