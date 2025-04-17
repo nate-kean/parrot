@@ -43,9 +43,7 @@ class WebhookManager:
 				reason="Automatically created by Parrot",
 			)
 			ctx.bot.crud.channel.set_webhook_id(ctx.channel, webhook)
-			logger.info(
-				f"{trace.format_command_origin(ctx)}: Created new webhook"
-			)
+			logger.info(f"{trace.format_context(ctx)}: Created new webhook")
 			return webhook
 		except (Forbidden, HTTPException, AttributeError):
 			# - Forbidden: Parrot lacks permission to make webhooks here.
