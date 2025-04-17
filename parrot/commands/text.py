@@ -54,11 +54,17 @@ class Text(commands.Cog):
 		"""
 		# If the author is replying to a message, add that message's text
 		# to anything the author might have also said after the command.
-		if ctx.message.reference and ctx.message.reference.message_id:
+		if (
+			ctx.message.reference is not None
+			and ctx.message.reference.message_id
+		):
 			reference_message = await ctx.channel.fetch_message(
 				ctx.message.reference.message_id
 			)
-			input_text += utils.find_text(reference_message)
+			input_text += (
+				utils.find_text(reference_message, accept_own_commands=True)
+				or ""
+			)
 			if len(input_text) == 0:
 				# Author didn't include any text of their own, and the message
 				# they're trying to get text from doesn't have any text.
@@ -69,7 +75,7 @@ class Text(commands.Cog):
 		elif len(input_text) == 0:
 			history = ctx.channel.history(limit=10, before=ctx.message)
 			async for message in history:
-				input_text += utils.find_text(message)
+				input_text += utils.find_text(message) or ""
 				if len(input_text) > 0:
 					break
 			else:  # input_text still empty

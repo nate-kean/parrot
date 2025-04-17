@@ -48,7 +48,8 @@ class MessageHandler(commands.Cog):
 			and self.bot.crud.user.wants_wawa(message.author)
 		):
 			text = utils.find_text(message)
-			await message.reply(await weasel.wawa(text))
+			if text is not None:
+				await message.reply(await weasel.wawa(text))
 
 
 async def setup(bot: Parrot) -> None:

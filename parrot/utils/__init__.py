@@ -145,16 +145,19 @@ def executor_function[**P, Ret](
 	return decorated
 
 
-def find_text(message: discord.Message) -> str:
-	"""
-	Search for text within a message.
-	Return an empty string if no text is found.
-	"""
-	text = []
-	if len(message.content) > 0 and not message.content.startswith(
+def find_text(
+	message: discord.Message,
+	accept_own_commands: bool = False,
+) -> str | None:
+	"""Search for text within a message."""
+	if not accept_own_commands and message.content.startswith(
 		config.command_prefix
 	):
-		text.append(message.content)
+		return
+	if len(message.content) == 0:
+		return
+	text: list[str] = []
+	text.append(message.content)
 	for embed in message.embeds:
 		if isinstance(embed.description, str) and len(embed.description) > 0:
 			text.append(embed.description)
