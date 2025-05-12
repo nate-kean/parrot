@@ -62,7 +62,7 @@ class HistoryCrawler:
 		self.running = False
 
 
-class LastUpdatedOrderedDict[K, V](OrderedDict):
+class LastUpdatedOrderedDict[K, V](OrderedDict[K, V]):
 	"""Store items in the order the keys were last added"""
 
 	def __setitem__(self, key: K, value: V):

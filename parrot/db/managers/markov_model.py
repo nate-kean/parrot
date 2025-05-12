@@ -44,11 +44,11 @@ class MarkovModelManager:
 		while (
 			self.space_used + len(new_model) > MarkovModelManager.MAX_MEM_SIZE
 		):
-			evicted: markov.ParrotText = self.cache.popitem(last=False)[1]
+			evicted_key, evicted = self.cache.popitem(last=False)
 			logger.debug(
 				" ** Full "
 				f"({self.space_used}/{MarkovModelManager.MAX_MEM_SIZE}); "
-				f"evicting: {evicted} (-{len(evicted)})"
+				f"evicting: {evicted_key} (-{len(evicted)})"
 			)
 			self.space_used -= len(evicted)
 		self.cache[key] = new_model
