@@ -114,4 +114,4 @@ class AntiavatarManager:
 	@staticmethod
 	def _url_id(url: str) -> str:
 		path = urllib.parse.urlparse(url).path
-		return Path(path).suffix
+		return Path(path).stem
