@@ -20,7 +20,11 @@ from parrot.utils import (
 	weasel,
 )
 from parrot.utils.converters import Memberlike
-from parrot.utils.exceptions import NotRegistered, TextNotFound
+from parrot.utils.exceptions import (
+	NotRegistered,
+	TextNotFound,
+	WrongChannelType,
+)
 from parrot.utils.trace import trace
 
 
@@ -203,6 +207,22 @@ class Text(commands.Cog):
 		await self._imitate_impl(
 			ctx,
 			member=cast(discord.Member, user),
+			mode=Text.ImitateMode.STANDARD,
+		)
+
+	@commands.command()
+	@commands.cooldown(2, 2, commands.BucketType.user)
+	@slow
+	async def me(self, ctx: commands.Context) -> None:
+		"""Alias for |imitate me"""
+		if ctx.guild is None:
+			raise WrongChannelType(
+				f'"{config.command_prefix}imitate you" is only available '
+				"in regular server text channels."
+			)
+		await self._imitate_impl(
+			ctx,
+			member=cast(discord.Member, ctx.author),
 			mode=Text.ImitateMode.STANDARD,
 		)
 
