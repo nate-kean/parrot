@@ -94,14 +94,16 @@ class Data(commands.Cog):
 	# 	)
 	# 	await ctx.reply(embed=embed_download_ready)
 
-	@commands.command(aliases=["pfp", "profilepic", "profilepicture"])
+	@commands.command(
+		aliases=["antiavatar", "pfp", "profilepic", "profilepicture"]
+	)
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	async def avatar(
 		self,
 		ctx: commands.Context,
 		who: Memberlike | None = None,
 	) -> None:
-		"""Show your Imitate Clone's avatar."""
+		"""Show your antiavatar."""
 		who = who or cast(discord.Member, ctx.author)
 		avatar_url = await self.bot.antiavatars.fetch(who)
 		await ctx.reply(avatar_url)
