@@ -170,8 +170,8 @@ class Text(commands.Cog):
 				sentence = irritate_text(sentence)
 				name = irritate_text(name)
 			case Text.ImitateMode.GIBBERISH:
-				sentence = weasel.gibberish(sentence)
-				name = weasel.gibberish(name)
+				sentence = await weasel.gibberish(sentence)
+				name = await weasel.gibberish(name)
 
 		# Prepare to send this sentence through a webhook.
 		# Discord lets you change the name and avatar of a webhook account much
