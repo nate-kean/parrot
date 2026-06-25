@@ -43,6 +43,7 @@ class Text(commands.Cog):
 		STANDARD = auto()
 		INTIMIDATE = auto()
 		IRRITATE = auto()
+		GIBBERISH = auto()
 
 	@staticmethod
 	async def _modify_text(
@@ -168,6 +169,9 @@ class Text(commands.Cog):
 			case Text.ImitateMode.IRRITATE:
 				sentence = irritate_text(sentence)
 				name = irritate_text(name)
+			case Text.ImitateMode.GIBBERISH:
+				sentence = weasel.gibberish(sentence)
+				name = weasel.gibberish(name)
 
 		# Prepare to send this sentence through a webhook.
 		# Discord lets you change the name and avatar of a webhook account much
@@ -256,6 +260,17 @@ class Text(commands.Cog):
 	async def gibberish(self, ctx: commands.Context, *, text: str = "") -> None:
 		"""Turn text into gibberish."""
 		await Text._modify_text(ctx, input_text=text, modifier=weasel.gibberish)
+
+	@commands.command()
+	@commands.cooldown(2, 2, commands.BucketType.user)
+	@slow
+	async def gibbitate(self, ctx: commands.Context, user: Memberlike) -> None:
+		"""Speak you-flavored gibberish."""
+		await self._imitate_impl(
+			ctx,
+			member=cast(discord.Member, user),
+			mode=Text.ImitateMode.GIBBERISH,
+		)
 
 	@commands.command(brief="Devolve a sentence.")
 	@commands.cooldown(2, 2, commands.BucketType.user)
