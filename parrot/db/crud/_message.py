@@ -2,9 +2,11 @@ from enum import Enum, auto
 from typing import cast
 
 import discord
+import sqlmodel as sm
 
 import parrot.db.models as p
 from parrot import config
+from parrot.origin import OriginMessage
 from parrot.utils import cast_not_none, regex
 from parrot.utils.types import Snowflake
 
@@ -121,6 +123,19 @@ class CRUDMessage(SubCRUD):
 				if success
 				else CRUDMessage.CreateOrUpdate.REJECTED
 			)
+
+	def origin_messages(self, guild: discord.Guild) -> list[OriginMessage]:
+		statement = (
+			sm.select(p.Message.id, p.Message.author_id, p.Message.content)
+			.where(p.Message.guild_id == guild.id)
+			.order_by(p.Message.id)
+		)
+		return [
+			OriginMessage(id=message_id, author_id=author_id, content=content)
+			for message_id, author_id, content in self.session.exec(
+				statement
+			).all()
+		]
 
 	def delete(self, message_id: Snowflake) -> p.Message | None:
 		"""Delete a message from the database."""
