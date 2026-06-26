@@ -14,7 +14,7 @@ dependencies = [
     "pillow>=11.1.0",
     "sqlalchemy>=2.0.37",
     "sqlmodel>=0.0.22",
-    "ujson>=5.10.0",
+    "ujson>=5.13.0",
 ]
 
 [dependency-groups]
