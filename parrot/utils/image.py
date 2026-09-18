@@ -11,7 +11,7 @@ from io import BytesIO
 from typing import Concatenate, cast
 
 import aiohttp
-from PIL import Image, ImageOps, ImageSequence
+from PIL import Image, ImageEnhance, ImageOps, ImageSequence
 
 from parrot import config
 from parrot.config import logger
@@ -94,7 +94,7 @@ def invert_flip_img(img: Image.Image) -> Image.Image:
 		ratio = max(width, height) / 500
 		img = img.resize(
 			(int(width / ratio), int(height / ratio)),
-			resample=Image.Resampling.BICUBIC,
+			resample=Image.Resampling.LANCZOS,
 		)
 	img = ImageOps.mirror(img)
 	# don't invert alpha channel
@@ -102,6 +102,29 @@ def invert_flip_img(img: Image.Image) -> Image.Image:
 	img = img.convert("RGB")
 	img = ImageOps.invert(img)
 	img.putalpha(alpha)
+	return img
+
+
+HUSK_YELLOW = "#f2c24a"
+
+
+def huskify_img(img: Image.Image) -> Image.Image:
+	"""
+	black and white,
+	+45 contrast
+	tint toward husk yellow
+	"""
+	# get image size, resize if too big
+	width, height = img.size
+	if max(width, height) > 500:
+		ratio = max(width, height) / 500
+		img = img.resize(
+			(int(width / ratio), int(height / ratio)),
+			resample=Image.Resampling.LANCZOS,
+		)
+	img = ImageOps.grayscale(img)
+	img = ImageEnhance.Contrast(img).enhance(1.45)
+	img = ImageOps.colorize(img, black="black", white=HUSK_YELLOW)
 	return img
 
 
@@ -132,9 +155,7 @@ def process_lower_level[**P](
 		if image_loop:
 			duration: int = img.info["duration"]
 			durations.append(duration)
-		img_out = effect(
-			cast(Image.Image, img).convert("RGBA"), *args, **kwargs
-		)
+		img_out = effect(img.convert("RGBA"), *args, **kwargs)
 		frames.append(img_out)
 
 	buffer = image_to_buffer(frames, tuple(durations), image_loop)
@@ -165,7 +186,8 @@ async def create_antiavatar_file(user: AnyUser) -> AntiavatarFile:
 			)
 
 	# original image begins processing
-	buffer = await process_lower_level(img, invert_flip_img)
+	# buffer = await process_lower_level(img, invert_flip_img)
+	buffer = await process_lower_level(img, huskify_img)
 	n_bytes = buffer.getbuffer().nbytes
 
 	# if file too large to send via Discord, then resize
