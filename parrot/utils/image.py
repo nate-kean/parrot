@@ -19,6 +19,9 @@ from parrot.utils import executor_function, tag
 from parrot.utils.types import AnyUser
 
 
+MAX_AVATAR_SIZE = 512  # px
+
+
 type ImageProcessingFunction[**P] = Callable[
 	Concatenate[Image.Image, P], Image.Image
 ]
@@ -90,8 +93,8 @@ async def fetch_image(url: str) -> Image.Image:
 def invert_flip_img(img: Image.Image) -> Image.Image:
 	# get image size, resize if too big
 	width, height = img.size
-	if max(width, height) > 500:
-		ratio = max(width, height) / 500
+	if max(width, height) > MAX_AVATAR_SIZE:
+		ratio = max(width, height) / MAX_AVATAR_SIZE
 		img = img.resize(
 			(int(width / ratio), int(height / ratio)),
 			resample=Image.Resampling.LANCZOS,
@@ -116,17 +119,17 @@ def huskify_img(img: Image.Image) -> Image.Image:
 	"""
 	# get image size, resize if too big
 	width, height = img.size
-	if max(width, height) > 500:
-		ratio = max(width, height) / 500
+	if max(width, height) > MAX_AVATAR_SIZE:
+		ratio = max(width, height) / MAX_AVATAR_SIZE
 		img = img.resize(
-			(int(width / ratio), int(height / ratio)),
+			(width // ratio, height // ratio),
 			resample=Image.Resampling.LANCZOS,
 		)
 	# dont process the alpha channel
 	alpha = img.convert("RGBA").split()[-1]
 	img = img.convert("RGB")
 	img = ImageOps.grayscale(img)
-	img = ImageEnhance.Contrast(img).enhance(1.45)
+	img = ImageEnhance.Contrast(img).enhance(1.65)
 	img = ImageOps.colorize(img, black="black", white=HUSK_YELLOW)
 	img.putalpha(alpha)
 	return img
