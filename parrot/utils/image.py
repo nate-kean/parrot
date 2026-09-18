@@ -177,7 +177,7 @@ class AntiavatarFile:
 
 async def create_antiavatar_file(user: AnyUser) -> AntiavatarFile:
 	# grab user image and covert to RGBA
-	img = await fetch_image(user.display_avatar.url)
+	img = await fetch_image(f"{user.display_avatar.url}&animated=true")
 	is_gif = getattr(img, "is_animated", False)
 
 	if is_gif:
