@@ -160,12 +160,12 @@ def process_lower_level[**P](
 	# attribute does not exist
 	image_loop = getattr(img.info, "loop", False)
 
-	for _ in ImageSequence.Iterator(img):
+	for frame in ImageSequence.Iterator(img):
 		if image_loop:
 			duration: int = img.info["duration"]
 			durations.append(duration)
-		img_out = effect(img.convert("RGBA"), *args, **kwargs)
-		frames.append(img_out)
+		frame = effect(frame.convert("RGBA"), *args, **kwargs)
+		frames.append(frame)
 
 	buffer = image_to_buffer(frames, tuple(durations), image_loop)
 	return buffer
@@ -179,7 +179,7 @@ class AntiavatarFile:
 
 async def create_antiavatar_file(user: AnyUser) -> AntiavatarFile:
 	# grab user image and covert to RGBA
-	img = await fetch_image(f"{user.display_avatar.url}&animated=true")
+	img = await fetch_image(user.display_avatar.url)
 	is_gif = getattr(img, "is_animated", False)
 
 	if is_gif:
