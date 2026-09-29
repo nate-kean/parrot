@@ -111,11 +111,12 @@ def invert_flip_img(img: Image.Image) -> Image.Image:
 HUSK_YELLOW = "#f2c24a"
 
 
-def huskify_img(img: Image.Image) -> Image.Image:
+def huskify_flip_img(img: Image.Image) -> Image.Image:
 	"""
 	black and white,
-	+45 contrast
+	crank contrast
 	tint toward husk yellow
+	flip
 	"""
 	# get image size, resize if too big
 	width, height = img.size
@@ -125,6 +126,7 @@ def huskify_img(img: Image.Image) -> Image.Image:
 			(width // ratio, height // ratio),
 			resample=Image.Resampling.LANCZOS,
 		)
+	img = ImageOps.mirror(img)
 	# dont process the alpha channel
 	alpha = img.convert("RGBA").split()[-1]
 	img = img.convert("RGB")
@@ -194,7 +196,7 @@ async def create_antiavatar_file(user: AnyUser) -> AntiavatarFile:
 
 	# original image begins processing
 	# buffer = await process_lower_level(img, invert_flip_img)
-	buffer = await process_lower_level(img, huskify_img)
+	buffer = await process_lower_level(img, huskify_flip_img)
 	n_bytes = buffer.getbuffer().nbytes
 
 	# if file too large to send via Discord, then resize
