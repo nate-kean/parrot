@@ -9,6 +9,7 @@ import parrot.db.models as p
 from parrot import config
 from parrot.config import logger
 from parrot.utils import image
+from parrot.utils.types import AnyUser
 
 
 if TYPE_CHECKING:
@@ -73,7 +74,7 @@ class AntiavatarManager:
 		# User has changed their avatar in this guild since last time they did
 		# |imitate, and/or Parrot has never made the antiavatar for this avatar,
 		# so we must create this avatar's anti.
-		antiavatar_file = await image.create_antiavatar_file(member)
+		antiavatar_file = await AntiavatarManager.create(member)
 
 		# Post the new antiavatar to the "avatar store" Discord channel.
 		message = await self.avatar_channel.send(
@@ -110,6 +111,10 @@ class AntiavatarManager:
 			)
 		else:
 			await message.delete()
+
+	@staticmethod
+	async def create(user: AnyUser) -> image.AntiavatarFile:
+		return await image.create_antiavatar_file(user)
 
 	@staticmethod
 	def _url_id(url: str) -> str:

@@ -17,6 +17,7 @@ from parrot.utils import (
 from parrot.utils.converters import Memberlike, Userlike
 from parrot.utils.exceptions import (
 	NoData,
+	NotRegistered,
 	UserMissingPermissions,
 )
 from parrot.utils.trace import trace
@@ -100,13 +101,22 @@ class Data(commands.Cog):
 	@commands.cooldown(2, 4, commands.BucketType.user)
 	async def avatar(
 		self,
-		ctx: commands.Context,
+		ctx: commands.Context[commands.Bot],
 		who: Memberlike | None = None,
 	) -> None:
 		"""Show your antiavatar."""
 		who = who or cast(discord.Member, ctx.author)
-		avatar_url = await self.bot.antiavatars.fetch(who)
-		await ctx.reply(avatar_url)
+		try:
+			avatar_url = await self.bot.antiavatars.fetch(who)
+			await ctx.reply(avatar_url)
+		except NotRegistered:
+			# Just process the avatar and send without saving it
+			antiavatar_file = await self.bot.antiavatars.create(who)
+			await ctx.reply(
+				file=discord.File(
+					antiavatar_file.buffer, f"{who.id}.{antiavatar_file.ext}"
+				)
+			)
 
 	async def _start_forget(
 		self,
