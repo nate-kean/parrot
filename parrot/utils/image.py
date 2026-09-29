@@ -129,7 +129,7 @@ def huskify_img(img: Image.Image) -> Image.Image:
 	alpha = img.convert("RGBA").split()[-1]
 	img = img.convert("RGB")
 	img = ImageOps.grayscale(img)
-	img = ImageEnhance.Contrast(img).enhance(1.65)
+	img = ImageEnhance.Contrast(img).enhance(3.65)
 	img = ImageOps.colorize(img, black="black", white=HUSK_YELLOW)
 	img.putalpha(alpha)
 	return img
