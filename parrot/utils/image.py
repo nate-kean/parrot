@@ -123,7 +123,7 @@ def huskify_flip_img(img: Image.Image) -> Image.Image:
 	if max(width, height) > MAX_AVATAR_SIZE:
 		ratio = max(width, height) / MAX_AVATAR_SIZE
 		img = img.resize(
-			(width // ratio, height // ratio),
+			(int(width / ratio), int(height / ratio)),
 			resample=Image.Resampling.LANCZOS,
 		)
 	img = ImageOps.mirror(img)
